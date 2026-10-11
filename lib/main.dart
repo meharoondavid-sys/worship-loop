@@ -196,7 +196,7 @@ class _MixerScreenState extends State<MixerScreen> {
                 const Expanded(
                   child: Text('TEMPO', style: TextStyle(fontSize: 12, letterSpacing: 1.8, fontWeight: FontWeight.w700)),
                 ),
-                Text('${_bpm} BPM', style: const TextStyle(fontSize: 13, color: Color(0xFFB6C5D9))),
+                Text('$_bpm BPM', style: const TextStyle(fontSize: 13, color: Color(0xFFB6C5D9))),
               ],
             ),
             const SizedBox(height: 12),
