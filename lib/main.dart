@@ -68,6 +68,13 @@ class _MixerScreenState extends State<MixerScreen> {
   ];
 
   int _bpm = 72;
+  String _globalKey = 'C Major';
+  static const List<String> _availableKeys = [
+    'C Major', 'Db Major', 'D Major', 'Eb Major', 'E Major', 'F Major',
+    'F# Major', 'G Major', 'Ab Major', 'A Major', 'Bb Major', 'B Major',
+    'C Minor', 'C# Minor', 'D Minor', 'Eb Minor', 'E Minor', 'F Minor',
+    'F# Minor', 'G Minor', 'Ab Minor', 'A Minor', 'Bb Minor', 'B Minor',
+  ];
   double _masterVolume = 0.85;
   String _fadeLength = '½ bar';
   bool _transitionTogether = true;
@@ -126,6 +133,8 @@ class _MixerScreenState extends State<MixerScreen> {
             _prototypeNotice(),
             const SizedBox(height: 16),
             _tempoPanel(),
+            const SizedBox(height: 14),
+            _globalKeyPanel(),
             const SizedBox(height: 18),
             _sectionHeader('PADS', 'SUSTAINING ATMOSPHERE', Icons.graphic_eq_rounded),
             const SizedBox(height: 10),
@@ -237,6 +246,63 @@ class _MixerScreenState extends State<MixerScreen> {
                 icon: const Icon(Icons.touch_app_rounded),
                 label: const Text('TAP TEMPO'),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _globalKeyPanel() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.music_note_rounded, color: Color(0xFF82B5FF)),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'GLOBAL KEY',
+                    style: TextStyle(
+                      fontSize: 12,
+                      letterSpacing: 1.8,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                Text(
+                  '24 KEYS',
+                  style: TextStyle(fontSize: 10, color: Color(0xFF93A2B7)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: _globalKey,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Key for all layers',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+              items: _availableKeys
+                  .map((key) => DropdownMenuItem<String>(
+                        value: key,
+                        child: Text(key),
+                      ))
+                  .toList(),
+              onChanged: (key) {
+                if (key != null) setState(() => _globalKey = key);
+              },
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Choose any of the 12 major or 12 minor keys. This global setting is ready in the interface; changing the actual sound pitch will be connected when audio playback is implemented.',
+              style: TextStyle(fontSize: 11, height: 1.5, color: Color(0xFF93A2B7)),
             ),
           ],
         ),
