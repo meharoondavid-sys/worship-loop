@@ -84,7 +84,7 @@ class _MixerScreenState extends State<MixerScreen> {
       }
       final average = intervals.reduce((a, b) => a + b) / intervals.length;
       if (average >= 250 && average <= 2000) {
-        setState(() => _bpm = (60000 / average).round().clamp(30, 240));
+        setState(() => _bpm = (60000 / average).round().clamp(30, 240).toInt());
         return;
       }
     }
@@ -204,7 +204,7 @@ class _MixerScreenState extends State<MixerScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 IconButton.filledTonal(
-                  onPressed: () => setState(() => _bpm = (_bpm - 1).clamp(30, 240)),
+                  onPressed: () => setState(() => _bpm = (_bpm - 1).clamp(30, 240).toInt()),
                   icon: const Icon(Icons.remove_rounded),
                 ),
                 Expanded(
@@ -216,7 +216,7 @@ class _MixerScreenState extends State<MixerScreen> {
                   ),
                 ),
                 IconButton.filledTonal(
-                  onPressed: () => setState(() => _bpm = (_bpm + 1).clamp(30, 240)),
+                  onPressed: () => setState(() => _bpm = (_bpm + 1).clamp(30, 240).toInt()),
                   icon: const Icon(Icons.add_rounded),
                 ),
               ],
