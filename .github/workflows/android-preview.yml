@@ -1,0 +1,61 @@
+name: Android preview build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'test/**'
+      - '.github/workflows/android-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate Android platform files
+        run: flutter create --platforms=android --org com.worshiploop --project-name worship_loop /tmp/worship_loop
+
+      - name: Copy app source into generated Flutter project
+        run: |
+          cp pubspec.yaml /tmp/worship_loop/pubspec.yaml
+          rm -rf /tmp/worship_loop/lib /tmp/worship_loop/test
+          cp -R lib /tmp/worship_loop/lib
+          cp -R test /tmp/worship_loop/test
+
+      - name: Resolve dependencies
+        working-directory: /tmp/worship_loop
+        run: flutter pub get
+
+      - name: Analyze Dart code
+        working-directory: /tmp/worship_loop
+        run: flutter analyze
+
+      - name: Run widget tests
+        working-directory: /tmp/worship_loop
+        run: flutter test
+
+      - name: Build debug APK
+        working-directory: /tmp/worship_loop
+        run: flutter build apk --debug
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: worship-loop-android-preview
+          path: /tmp/worship_loop/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
