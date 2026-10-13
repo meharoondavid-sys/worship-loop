@@ -168,7 +168,7 @@ class _MixerScreenState extends State<MixerScreen> {
         final slowMotion = 1.0 + 0.025 * math.sin(2 * math.pi * time / seconds + i);
         sample += math.sin(2 * math.pi * frequencies[i] * time) * slowMotion;
       }
-      final value = (sample / frequencies.length * 6500).round().clamp(-32768, 32767);
+      final value = (sample / frequencies.length * 6500).round().clamp(-32768, 32767).toInt();
       final offset = 44 + frame * 4;
       bytes.setInt16(offset, value, Endian.little);
       bytes.setInt16(offset + 2, value, Endian.little);
@@ -193,7 +193,7 @@ class _MixerScreenState extends State<MixerScreen> {
       } else {
         await _padPlayer.setVolume(layer.volume * _masterVolume);
         await _padPlayer.seek(Duration.zero);
-        await _padPlayer.play();
+        _padPlayer.play();
         if (mounted) setState(() => layer.isPlaying = true);
       }
     } catch (error) {
