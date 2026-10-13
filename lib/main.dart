@@ -132,7 +132,7 @@ class _MixerScreenState extends State<MixerScreen> {
       ),
       body: SafeArea(
         child: LayoutBuilder(
-          builder: (context, constraints) {
+          builder: (context, _) {
             final landscape = MediaQuery.sizeOf(context).width >
                 MediaQuery.sizeOf(context).height;
             if (landscape) {
@@ -445,7 +445,7 @@ class _MixerScreenState extends State<MixerScreen> {
             ),
             const SizedBox(height: 7),
             DropdownButtonFormField<String>(
-              value: _globalKey,
+              initialValue: _globalKey,
               isExpanded: true,
               decoration: const InputDecoration(
                 isDense: true,
@@ -643,7 +643,7 @@ class _MixerScreenState extends State<MixerScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _globalKey,
+              initialValue: _globalKey,
               isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Key for all layers',
