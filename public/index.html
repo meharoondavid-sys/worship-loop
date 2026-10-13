@@ -211,7 +211,7 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
 }
 
 
-/* Real-console fader treatment: recessed slot, scale ticks and metallic thumb */
+/* Logic Pro-inspired faders: dark calibrated slot and silver, grooved fader cap */
 .layer .volume input,
 .bus-strip input,
 .master-strip input{
@@ -237,23 +237,23 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
 .layer .volume input::-webkit-slider-runnable-track,
 .bus-strip input::-webkit-slider-runnable-track,
 .master-strip input::-webkit-slider-runnable-track{
-  width:6px;
-  border:1px solid #05080d;
-  border-radius:5px;
+  width:7px;
+  border:1px solid #05070b;
+  border-radius:2px;
   background:
-    repeating-linear-gradient(to bottom, transparent 0 9px, #a8bdd733 9px 10px),
-    linear-gradient(90deg,#050910 0%,#273449 28%,#101722 52%,#35445a 78%,#070b12 100%);
-  box-shadow:inset 0 1px 3px #000,0 0 0 1px #ffffff08;
+    repeating-linear-gradient(to bottom,transparent 0 8px,#aeb9c833 8px 9px),
+    linear-gradient(90deg,#080c12 0%,#273344 24%,#111923 50%,#303e50 76%,#070a10 100%);
+  box-shadow:inset 0 1px 3px #000,0 0 0 1px #ffffff0a;
 }
 .layer .volume input::-moz-range-track,
 .bus-strip input::-moz-range-track,
 .master-strip input::-moz-range-track{
-  width:6px;
-  border:1px solid #05080d;
-  border-radius:5px;
+  width:7px;
+  border:1px solid #05070b;
+  border-radius:2px;
   background:
-    repeating-linear-gradient(to bottom, transparent 0 9px, #a8bdd733 9px 10px),
-    linear-gradient(90deg,#050910,#273449 28%,#101722 52%,#35445a 78%,#070b12);
+    repeating-linear-gradient(to bottom,transparent 0 8px,#aeb9c833 8px 9px),
+    linear-gradient(90deg,#080c12 0%,#273344 24%,#111923 50%,#303e50 76%,#070a10 100%);
   box-shadow:inset 0 1px 3px #000;
 }
 .layer .volume input::-webkit-slider-thumb,
@@ -262,40 +262,30 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
   -webkit-appearance:none;
   width:25px;
   height:13px;
-  margin-left:0;
   border:1px solid #05080d;
-  border-radius:3px;
+  border-radius:2px;
   background:
-    linear-gradient(180deg,#f4f7fb 0%,#aab6c5 16%,#4e5d70 42%,#1b2635 48%,#64748a 70%,#d9e0e8 100%);
-  box-shadow:0 2px 4px #000b, inset 0 1px #ffffffb3, inset 0 -1px #05080d;
+    linear-gradient(180deg,transparent 0 42%,#151b24 42% 58%,transparent 58% 100%),
+    linear-gradient(90deg,#4e5a69 0%,#e1e6ed 17%,#a5b0be 42%,#eef2f6 60%,#8c98a7 82%,#455160 100%);
+  box-shadow:0 2px 4px #000c,inset 0 1px #ffffffc9,inset 0 -1px #293342;
 }
-.layer .volume input::-webkit-slider-thumb::before,
-.bus-strip input::-webkit-slider-thumb::before,
-.master-strip input::-webkit-slider-thumb::before{content:"";display:block}
 .layer .volume input::-moz-range-thumb,
 .bus-strip input::-moz-range-thumb,
 .master-strip input::-moz-range-thumb{
   width:24px;
   height:12px;
   border:1px solid #05080d;
-  border-radius:3px;
-  background:linear-gradient(180deg,#f4f7fb 0%,#aab6c5 16%,#4e5d70 42%,#1b2635 48%,#64748a 70%,#d9e0e8 100%);
-  box-shadow:0 2px 4px #000b,inset 0 1px #ffffffb3,inset 0 -1px #05080d;
+  border-radius:2px;
+  background:
+    linear-gradient(180deg,transparent 0 42%,#151b24 42% 58%,transparent 58% 100%),
+    linear-gradient(90deg,#4e5a69 0%,#e1e6ed 17%,#a5b0be 42%,#eef2f6 60%,#8c98a7 82%,#455160 100%);
+  box-shadow:0 2px 4px #000c,inset 0 1px #ffffffc9,inset 0 -1px #293342;
 }
 .layer .volume input:focus-visible,
 .bus-strip input:focus-visible,
 .master-strip input:focus-visible{outline:2px solid #d9eaff;outline-offset:3px;border-radius:5px}
 .layer .volume{position:relative}
-.layer .volume::before{
-  content:"";
-  position:absolute;
-  top:10px;bottom:10px;left:50%;
-  width:1px;
-  transform:translateX(-50%);
-  background:repeating-linear-gradient(to bottom,#a8bdd766 0 1px,transparent 1px 9px);
-  pointer-events:none;
-  opacity:.55;
-}
+.layer .volume::before{opacity:0}
 .layer .volume input{z-index:1}
 .bus-strip{position:relative}
 .bus-strip input{height:clamp(88px,calc(100dvh - 265px),185px)}
