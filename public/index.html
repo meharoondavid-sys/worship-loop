@@ -182,6 +182,34 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
  .control-window .key-panel .key-btn{min-height:54px;font-size:15px}
 }
 
+/* Ensure note buttons stretch across the entire usable width of the key card */
+.control-window .top-controls{grid-template-columns:minmax(150px,.72fr) minmax(0,1.6fr) minmax(180px,.9fr)}
+.control-window .key-panel{width:100%;min-width:0;grid-column:auto}
+.control-window .key-panel .key-buttons{
+ width:100%;
+ min-width:0;
+ grid-template-columns:repeat(6,minmax(0,1fr));
+ justify-items:stretch;
+ align-items:stretch;
+}
+.control-window .key-panel .key-btn{
+ display:flex;
+ width:100%;
+ min-width:0;
+ margin:0;
+ justify-self:stretch;
+}
+@media(max-width:900px){
+ .control-window .top-controls{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)}
+ .control-window .key-panel{grid-column:2}
+ .control-window .transition-panel{grid-column:1/-1}
+}
+@media(max-width:650px) and (orientation:portrait){
+ .control-window .top-controls{grid-template-columns:minmax(0,1fr)}
+ .control-window .key-panel{grid-column:1}
+ .control-window .key-panel .key-buttons{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
