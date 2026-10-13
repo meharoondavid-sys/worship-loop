@@ -346,6 +346,15 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
 .layer .volume span.pct,
 .bus-strip output,
 .master-strip .master-readout{color:#82b5ff!important}
+
+
+/* Fader-section specification: colour the bus and master tracks only; keep all caps/readouts unchanged */
+.pad-bus input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#60a5fa66 8px 9px),linear-gradient(90deg,transparent 0 36%,#60a5fa 36%,#60a5fa 64%,transparent 64% 100%)}
+.pad-bus input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#60a5fa66 8px 9px),linear-gradient(90deg,transparent 0 36%,#60a5fa 36%,#60a5fa 64%,transparent 64% 100%)}
+.perc-bus input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#73d6c066 8px 9px),linear-gradient(90deg,transparent 0 36%,#73d6c0 36%,#73d6c0 64%,transparent 64% 100%)}
+.perc-bus input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#73d6c066 8px 9px),linear-gradient(90deg,transparent 0 36%,#73d6c0 36%,#73d6c0 64%,transparent 64% 100%)}
+.master-strip input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fbbf2466 8px 9px),linear-gradient(90deg,transparent 0 36%,#fbbf24 36%,#fbbf24 64%,transparent 64% 100%)}
+.master-strip input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fbbf2466 8px 9px),linear-gradient(90deg,transparent 0 36%,#fbbf24 36%,#fbbf24 64%,transparent 64% 100%)}
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
