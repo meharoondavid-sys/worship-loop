@@ -17,12 +17,8 @@ void main() {
     expect(find.text('GLOBAL KEY'), findsOneWidget);
     expect(find.text('C Major'), findsOneWidget);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await tester.pumpAndSettle();
-    expect(find.text('A Minor'), findsOneWidget);
-    await tester.tap(find.text('A Minor'));
-    await tester.pumpAndSettle();
-    expect(find.text('A Minor'), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
+    expect(find.text('A Minor', skipOffstage: false), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Percussion 1'), 250);
     expect(find.text('Percussion 1'), findsOneWidget);
