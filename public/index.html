@@ -304,6 +304,19 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
  .layer .volume input,.bus-strip input,.master-strip input{height:clamp(78px,calc(100dvh - 245px),140px);min-height:70px;max-height:140px}
 }
 
+
+/* Focused polish: center the silver fader caps over their slots and soften the mixer finish */
+.layer .volume input::-webkit-slider-thumb,
+.bus-strip input::-webkit-slider-thumb,
+.master-strip input::-webkit-slider-thumb{transform:translateX(-25px)}
+.layer .volume input::-moz-range-thumb,
+.bus-strip input::-moz-range-thumb,
+.master-strip input::-moz-range-thumb{transform:translateX(-25px)}
+.channel-group{background:linear-gradient(155deg,#111b29,#0d131d);border-color:#2b3a50;box-shadow:inset 0 1px #ffffff08}
+.layer{box-shadow:inset 0 1px #ffffff08,0 3px 10px #00000012}
+.layer-name b{letter-spacing:.1px}
+.layer .volume input:focus-visible,.bus-strip input:focus-visible,.master-strip input:focus-visible{outline-color:#b9d7ff}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
