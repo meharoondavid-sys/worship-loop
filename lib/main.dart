@@ -1,4 +1,10 @@
+import 'dart:io';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const WorshipLoopApp());
@@ -83,6 +89,127 @@ class _MixerScreenState extends State<MixerScreen> {
   String _fadeLength = '½ bar';
   bool _transitionTogether = true;
   final List<DateTime> _tapTimes = [];
+  final AudioPlayer _padPlayer = AudioPlayer();
+  bool _audioReady = false;
+  bool _audioLoading = false;
+  String? _audioError;
+
+  @override
+  void initState() {
+    super.initState();
+    _preparePadAudio();
+  }
+
+  @override
+  void dispose() {
+    _padPlayer.dispose();
+    super.dispose();
+  }
+
+  Future<void> _preparePadAudio() async {
+    setState(() => _audioLoading = true);
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/worship_loop_test_pad.wav');
+      if (!await file.exists()) {
+        await file.writeAsBytes(_createTestPadWav(), flush: true);
+      }
+      await _padPlayer.setFilePath(file.path);
+      await _padPlayer.setLoopMode(LoopMode.one);
+      await _padPlayer.setVolume(_layers.first.volume * _masterVolume);
+      if (!mounted) return;
+      setState(() {
+        _audioReady = true;
+        _audioLoading = false;
+        _audioError = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _audioLoading = false;
+        _audioError = 'Audio setup failed: $error';
+      });
+    }
+  }
+
+  Uint8List _createTestPadWav() {
+    const sampleRate = 44100;
+    const seconds = 4;
+    const channels = 2;
+    const bitsPerSample = 16;
+    const frameCount = sampleRate * seconds;
+    const dataSize = frameCount * channels * (bitsPerSample ~/ 8);
+    final bytes = ByteData(44 + dataSize);
+    void writeText(int offset, String value) {
+      for (var i = 0; i < value.length; i++) {
+        bytes.setUint8(offset + i, value.codeUnitAt(i));
+      }
+    }
+
+    writeText(0, 'RIFF');
+    bytes.setUint32(4, 36 + dataSize, Endian.little);
+    writeText(8, 'WAVE');
+    writeText(12, 'fmt ');
+    bytes.setUint32(16, 16, Endian.little);
+    bytes.setUint16(20, 1, Endian.little);
+    bytes.setUint16(22, channels, Endian.little);
+    bytes.setUint32(24, sampleRate, Endian.little);
+    bytes.setUint32(28, sampleRate * channels * (bitsPerSample ~/ 8), Endian.little);
+    bytes.setUint16(32, channels * (bitsPerSample ~/ 8), Endian.little);
+    bytes.setUint16(34, bitsPerSample, Endian.little);
+    writeText(36, 'data');
+    bytes.setUint32(40, dataSize, Endian.little);
+
+    const frequencies = [110.0, 165.0, 220.0, 330.0];
+    for (var frame = 0; frame < frameCount; frame++) {
+      final time = frame / sampleRate;
+      var sample = 0.0;
+      for (var i = 0; i < frequencies.length; i++) {
+        final slowMotion = 1.0 + 0.025 * math.sin(2 * math.pi * time / seconds + i);
+        sample += math.sin(2 * math.pi * frequencies[i] * time) * slowMotion;
+      }
+      final value = (sample / frequencies.length * 6500).round().clamp(-32768, 32767);
+      final offset = 44 + frame * 4;
+      bytes.setInt16(offset, value, Endian.little);
+      bytes.setInt16(offset + 2, value, Endian.little);
+    }
+    return bytes.buffer.asUint8List();
+  }
+
+  Future<void> _toggleLayer(AudioLayer layer) async {
+    if (layer != _layers.first) {
+      _showNotice('The first pad is connected to real audio in this prototype. Other layers will be connected in the next stages.');
+      return;
+    }
+    if (!_audioReady) {
+      _showNotice(_audioError ?? 'Preparing the test pad sound. Please try again in a moment.');
+      return;
+    }
+    try {
+      if (_padPlayer.playing) {
+        await _padPlayer.pause();
+        await _padPlayer.seek(Duration.zero);
+        if (mounted) setState(() => layer.isPlaying = false);
+      } else {
+        await _padPlayer.setVolume(layer.volume * _masterVolume);
+        await _padPlayer.seek(Duration.zero);
+        await _padPlayer.play();
+        if (mounted) setState(() => layer.isPlaying = true);
+      }
+    } catch (error) {
+      _showNotice('Could not play the test pad: $error');
+    }
+  }
+
+  Future<void> _updatePadVolume(double value) async {
+    setState(() => _layers.first.volume = value);
+    if (_audioReady) await _padPlayer.setVolume(value * _masterVolume);
+  }
+
+  Future<void> _updateMasterVolume(double value) async {
+    setState(() => _masterVolume = value);
+    if (_audioReady) await _padPlayer.setVolume(_layers.first.volume * value);
+  }
 
   void _tapTempo() {
     final now = DateTime.now();
@@ -142,6 +269,8 @@ class _MixerScreenState extends State<MixerScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
               children: [
                 _prototypeNotice(),
+                const SizedBox(height: 8),
+                _audioStatus(),
                 const SizedBox(height: 16),
                 _tempoPanel(),
                 const SizedBox(height: 14),
@@ -345,7 +474,7 @@ class _MixerScreenState extends State<MixerScreen> {
                   height: 24,
                   child: Slider(
                     value: layer.volume,
-                    onChanged: (value) => setState(() => layer.volume = value),
+                    onChanged: layer == _layers.first ? _updatePadVolume : (value) => setState(() => layer.volume = value),
                   ),
                 ),
               ),
@@ -526,6 +655,12 @@ class _MixerScreenState extends State<MixerScreen> {
         ),
       ),
     );
+  }
+
+  Widget _audioStatus() {
+    final message = _audioError ?? (_audioLoading ? 'Preparing real pad audio…' : _audioReady ? 'Audio ready • Pad 1 is connected to real playback' : 'Audio is not ready yet');
+    final color = _audioError != null ? const Color(0xFFFF8A80) : _audioReady ? const Color(0xFF73D6C0) : const Color(0xFFFFC66D);
+    return Card(child: Padding(padding: const EdgeInsets.all(12), child: Row(children: [Icon(_audioReady ? Icons.graphic_eq_rounded : Icons.info_outline_rounded, color: color), const SizedBox(width: 9), Expanded(child: Text(message, style: TextStyle(fontSize: 11, color: color))) ])));
   }
 
   Widget _prototypeNotice() {
@@ -724,7 +859,7 @@ class _MixerScreenState extends State<MixerScreen> {
                 ),
                 IconButton.filledTonal(
                   tooltip: layer.isPlaying ? 'Stop preview state' : 'Start preview state',
-                  onPressed: () => setState(() => layer.isPlaying = !layer.isPlaying),
+                  onPressed: () => _toggleLayer(layer),
                   icon: Icon(layer.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded),
                   style: IconButton.styleFrom(
                     foregroundColor: layer.isPlaying ? const Color(0xFF0B1018) : accent,
@@ -819,7 +954,7 @@ class _MixerScreenState extends State<MixerScreen> {
             ),
             Slider(
               value: _masterVolume,
-              onChanged: (value) => setState(() => _masterVolume = value),
+              onChanged: _updateMasterVolume,
             ),
           ],
         ),
