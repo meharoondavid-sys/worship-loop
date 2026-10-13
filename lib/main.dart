@@ -21,10 +21,14 @@ class WorshipLoopApp extends StatelessWidget {
           surface: const Color(0xFF111722),
         ),
         scaffoldBackgroundColor: const Color(0xFF0B1018),
-        cardTheme: const CardThemeData(
-          color: Color(0xFF151D2A),
+        cardTheme: CardThemeData(
+          color: const Color(0xFF151D2A),
           elevation: 0,
           margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: const BorderSide(color: Color(0xFF26354A)),
+          ),
         ),
         sliderTheme: const SliderThemeData(trackHeight: 3),
       ),
@@ -127,40 +131,397 @@ class _MixerScreenState extends State<MixerScreen> {
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-          children: [
-            _prototypeNotice(),
-            const SizedBox(height: 16),
-            _tempoPanel(),
-            const SizedBox(height: 14),
-            _globalKeyPanel(),
-            const SizedBox(height: 18),
-            _sectionHeader('PADS', 'SUSTAINING ATMOSPHERE', Icons.graphic_eq_rounded),
-            const SizedBox(height: 10),
-            ...pads.map((layer) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _layerCard(layer),
-                )),
-            const SizedBox(height: 10),
-            _sectionHeader('PERCUSSION', 'TEMPO-SYNCED LOOPS', Icons.waves_rounded),
-            const SizedBox(height: 10),
-            ...percussion.map((layer) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _layerCard(layer),
-                )),
-            const SizedBox(height: 8),
-            _transitionPanel(),
-            const SizedBox(height: 14),
-            _masterPanel(),
-            const SizedBox(height: 18),
-            OutlinedButton.icon(
-              onPressed: () => _showNotice(
-                'Audio playback is not connected yet. This preview lets us review the mixer layout and controls before implementing the audio engine.',
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final landscape = MediaQuery.sizeOf(context).width >
+                MediaQuery.sizeOf(context).height;
+            if (landscape) {
+              return _landscapeLayout(pads, percussion);
+            }
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+              children: [
+                _prototypeNotice(),
+                const SizedBox(height: 16),
+                _tempoPanel(),
+                const SizedBox(height: 14),
+                _globalKeyPanel(),
+                const SizedBox(height: 18),
+                _sectionHeader('PADS', 'SUSTAINING ATMOSPHERE', Icons.graphic_eq_rounded),
+                const SizedBox(height: 10),
+                ...pads.map((layer) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _layerCard(layer),
+                    )),
+                const SizedBox(height: 10),
+                _sectionHeader('PERCUSSION', 'TEMPO-SYNCED LOOPS', Icons.waves_rounded),
+                const SizedBox(height: 10),
+                ...percussion.map((layer) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _layerCard(layer),
+                    )),
+                const SizedBox(height: 8),
+                _transitionPanel(),
+                const SizedBox(height: 14),
+                _masterPanel(),
+                const SizedBox(height: 18),
+                OutlinedButton.icon(
+                  onPressed: () => _showNotice(
+                    'Audio playback is not connected yet. This preview lets us review the mixer layout and controls before implementing the audio engine.',
+                  ),
+                  icon: const Icon(Icons.info_outline_rounded),
+                  label: const Text('What works in this preview?'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _landscapeLayout(List<AudioLayer> pads, List<AudioLayer> percussion) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 10,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _compactTempoPanel(),
+                  const SizedBox(height: 8),
+                  _compactGlobalKeyPanel(),
+                  const SizedBox(height: 6),
+                  TextButton.icon(
+                    onPressed: () => _showNotice(
+                      'This is an interactive UI preview. Audio playback and real pitch shifting are not connected yet.',
+                    ),
+                    icon: const Icon(Icons.info_outline_rounded, size: 15),
+                    label: const Text('Preview info', style: TextStyle(fontSize: 11)),
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.info_outline_rounded),
-              label: const Text('What works in this preview?'),
             ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 11,
+            child: _landscapeLayerColumn(
+              title: 'PADS',
+              subtitle: 'SUSTAINING',
+              icon: Icons.graphic_eq_rounded,
+              accent: const Color(0xFF82B5FF),
+              layers: pads,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 11,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _landscapeLayerColumn(
+                    title: 'PERCUSSION',
+                    subtitle: 'TEMPO-SYNCED',
+                    icon: Icons.waves_rounded,
+                    accent: const Color(0xFF73D6C0),
+                    layers: percussion,
+                    shrinkWrap: true,
+                  ),
+                  const SizedBox(height: 8),
+                  _compactTransitionPanel(),
+                  const SizedBox(height: 8),
+                  _compactMasterPanel(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _landscapeLayerColumn({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color accent,
+    required List<AudioLayer> layers,
+    bool shrinkWrap = false,
+  }) {
+    final content = Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+          child: Row(
+            children: [
+              Icon(icon, color: accent, size: 18),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+                    Text(subtitle, style: const TextStyle(fontSize: 9, color: Color(0xFF93A2B7), letterSpacing: 1)),
+                  ],
+                ),
+              ),
+              Text('${layers.length}/3', style: const TextStyle(fontSize: 10, color: Color(0xFF93A2B7))),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        ...layers.map((layer) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: _compactLayerCard(layer),
+            )),
+      ],
+    );
+    return shrinkWrap ? content : SingleChildScrollView(child: content);
+  }
+
+  Widget _compactLayerCard(AudioLayer layer) {
+    final isPad = layer.kind == LayerKind.pad;
+    final accent = isPad ? const Color(0xFF82B5FF) : const Color(0xFF73D6C0);
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            accent.withValues(alpha: 0.10),
+            const Color(0xFF151D2A),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: accent.withValues(alpha: 0.20)),
+      ),
+      padding: const EdgeInsets.fromLTRB(9, 7, 5, 5),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 27,
+                height: 27,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Icon(isPad ? Icons.graphic_eq_rounded : Icons.waves_rounded, color: accent, size: 16),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(layer.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                    Text(layer.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 9, color: Color(0xFF93A2B7))),
+                  ],
+                ),
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints.tightFor(width: 31, height: 31),
+                padding: EdgeInsets.zero,
+                tooltip: layer.isPlaying ? 'Stop preview state' : 'Start preview state',
+                onPressed: () => setState(() => layer.isPlaying = !layer.isPlaying),
+                style: IconButton.styleFrom(
+                  foregroundColor: layer.isPlaying ? const Color(0xFF071018) : accent,
+                  backgroundColor: layer.isPlaying ? accent : const Color(0xFF202B3B),
+                ),
+                icon: Icon(layer.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded, size: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.volume_down_rounded, size: 14, color: accent),
+              Expanded(
+                child: SizedBox(
+                  height: 24,
+                  child: Slider(
+                    value: layer.volume,
+                    onChanged: (value) => setState(() => layer.volume = value),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 28,
+                child: Text('${(layer.volume * 100).round()}%', textAlign: TextAlign.end, style: const TextStyle(fontSize: 9, color: Color(0xFFB7C4D6))),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _compactTempoPanel() {
+    return Card(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1C3556), Color(0xFF151D2A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        padding: const EdgeInsets.fromLTRB(11, 9, 11, 7),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.speed_rounded, color: Color(0xFF82B5FF), size: 17),
+                const SizedBox(width: 6),
+                const Expanded(child: Text('TEMPO', style: TextStyle(fontSize: 10, letterSpacing: 1.4, fontWeight: FontWeight.w800))),
+                Text('BPM', style: TextStyle(fontSize: 9, color: Colors.white.withValues(alpha: 0.60))),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                  padding: EdgeInsets.zero,
+                  onPressed: () => setState(() => _bpm = (_bpm - 1).clamp(30, 240).toInt()),
+                  icon: const Icon(Icons.remove_circle_outline_rounded, size: 18),
+                ),
+                Expanded(child: Center(child: Text('$_bpm', style: const TextStyle(fontSize: 35, height: 1, fontWeight: FontWeight.w300, letterSpacing: -1.5)))),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                  padding: EdgeInsets.zero,
+                  onPressed: () => setState(() => _bpm = (_bpm + 1).clamp(30, 240).toInt()),
+                  icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 24,
+              child: Slider(
+                value: _bpm.toDouble(),
+                min: 30,
+                max: 240,
+                divisions: 210,
+                label: '$_bpm BPM',
+                onChanged: (value) => setState(() => _bpm = value.round()),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: 32,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                onPressed: _tapTempo,
+                icon: const Icon(Icons.touch_app_rounded, size: 15),
+                label: const Text('TAP TEMPO', style: TextStyle(fontSize: 10, letterSpacing: 0.8)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _compactGlobalKeyPanel() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(11, 10, 11, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.music_note_rounded, color: Color(0xFF73D6C0), size: 17),
+                SizedBox(width: 6),
+                Expanded(child: Text('GLOBAL KEY', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2))),
+                Text('24', style: TextStyle(fontSize: 9, color: Color(0xFF93A2B7))),
+              ],
+            ),
+            const SizedBox(height: 7),
+            DropdownButtonFormField<String>(
+              value: _globalKey,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(horizontal: 9, vertical: 8),
+                border: OutlineInputBorder(),
+              ),
+              items: _availableKeys.map((key) => DropdownMenuItem<String>(value: key, child: Text(key, style: const TextStyle(fontSize: 12)))).toList(),
+              onChanged: (key) {
+                if (key != null) setState(() => _globalKey = key);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _compactTransitionPanel() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 7),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.swap_horiz_rounded, color: Color(0xFF73D6C0), size: 16),
+                SizedBox(width: 5),
+                Expanded(child: Text('TEMPO TRANSITION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5))),
+              ],
+            ),
+            const SizedBox(height: 6),
+            SegmentedButton<String>(
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 5)),
+                textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 10)),
+              ),
+              segments: const [
+                ButtonSegment(value: '¼ bar', label: Text('¼')),
+                ButtonSegment(value: '½ bar', label: Text('½')),
+                ButtonSegment(value: '1 bar', label: Text('1')),
+              ],
+              selected: {_fadeLength},
+              onSelectionChanged: (selection) => setState(() => _fadeLength = selection.first),
+              showSelectedIcon: false,
+            ),
+            SwitchListTile(
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              contentPadding: EdgeInsets.zero,
+              value: _transitionTogether,
+              onChanged: (value) => setState(() => _transitionTogether = value),
+              title: const Text('Sync percussion', style: TextStyle(fontSize: 10)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _compactMasterPanel() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 5, 10, 3),
+        child: Row(
+          children: [
+            const Icon(Icons.tune_rounded, color: Color(0xFF82B5FF), size: 16),
+            const SizedBox(width: 5),
+            const Expanded(child: Text('MASTER', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1))),
+            SizedBox(
+              width: 80,
+              height: 26,
+              child: Slider(value: _masterVolume, onChanged: (value) => setState(() => _masterVolume = value)),
+            ),
+            SizedBox(width: 27, child: Text('${(_masterVolume * 100).round()}%', textAlign: TextAlign.end, style: const TextStyle(fontSize: 9, color: Color(0xFFB7C4D6)))),
           ],
         ),
       ),
