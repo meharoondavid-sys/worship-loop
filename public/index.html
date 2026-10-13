@@ -364,3 +364,12 @@ document.querySelector('#master').oninput=e=>document.querySelector('#masterVal'
 document.querySelector('#padBus').oninput=e=>document.querySelector('#padBusVal').textContent=e.target.value+'%';
 document.querySelector('#percBus').oninput=e=>document.querySelector('#percBusVal').textContent=e.target.value+'%';
 </script></body></html>
+
+/* Keep every mixer fader cap and level readout the same blue */
+.layer,
+.pad-bus,
+.perc-bus,
+.master-strip{--fader:#82b5ff}
+.layer .volume span.pct,
+.bus-strip output,
+.master-strip .master-readout{color:#82b5ff}
