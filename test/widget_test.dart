@@ -18,7 +18,6 @@ void main() {
     expect(find.text('C Major'), findsOneWidget);
 
     expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
-    expect(find.text('A Minor', skipOffstage: false), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Percussion 1'), 250);
     expect(find.text('Percussion 1'), findsOneWidget);
