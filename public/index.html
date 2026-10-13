@@ -108,6 +108,45 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
  .control-window .transition-panel{grid-column:auto}
 }
 
+/* Accessibility: larger touch targets in the settings panel */
+.control-window button{min-height:46px;font-size:14px}
+.control-window .round{width:46px;height:46px;font-size:25px}
+.control-window .tap{min-height:50px;font-size:12px}
+.control-window .segment button{min-height:48px;padding:10px 8px;font-size:13px}
+.control-window .key-btn{min-height:46px;font-size:13px;padding:10px 3px}
+.control-window .toggle{font-size:13px;min-height:40px}
+.control-window .toggle input{width:22px;height:22px}
+.control-window .window-close{width:44px;height:44px;font-size:27px}
+@media(max-width:650px) and (orientation:portrait){
+ .control-window .key-buttons{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .control-window .key-btn{min-height:48px}
+ .control-window .top-controls .panel{padding:12px}
+}
+@media(max-height:480px) and (orientation:landscape){
+ .control-window .key-btn{min-height:44px}
+ .control-window .segment button{min-height:44px}
+}
+/* Dedicated group bus faders for independent pad and percussion levels */
+.channel-group{display:grid;grid-template-columns:minmax(0,1fr) 40px;grid-template-rows:auto minmax(0,1fr);column-gap:6px}
+.channel-group>.section-title{grid-column:1/-1}
+.channel-group>.channel-row{grid-column:1;grid-row:2}
+.bus-strip{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;border:1px solid #34445a;border-radius:8px;background:#101722;padding:6px 3px}
+.bus-strip strong{font-size:8px;line-height:1.1;letter-spacing:.3px;text-align:center;overflow-wrap:anywhere}
+.bus-strip output{font-size:10px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
+.bus-strip input{appearance:slider-vertical;-webkit-appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;width:10px;min-height:95px;max-height:180px;height:clamp(95px,calc(100dvh - 270px),180px);accent-color:var(--blue);cursor:ns-resize}
+.bus-strip small{font-size:8px;color:var(--muted);letter-spacing:.8px}
+.perc-bus{border-color:#2a504b}.perc-bus output{color:var(--teal)}.perc-bus input{accent-color:var(--teal)}
+@media (orientation:landscape){
+ .channel-group{grid-template-columns:minmax(0,1fr) 42px}
+ .bus-strip input{height:clamp(75px,calc(100dvh - 250px),165px);min-height:75px;max-height:165px}
+}
+@media(max-width:650px) and (orientation:portrait){
+ .channel-group{grid-template-columns:minmax(0,1fr) 42px;column-gap:5px}
+ .bus-strip{padding:5px 3px}
+ .bus-strip input{height:120px;min-height:100px;max-height:150px}
+ .bus-strip strong{font-size:8px}
+}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
@@ -128,8 +167,8 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
  </section>
  </div>
  <section class="mixer">
-  <div class="channel-group"><div class="section-title"><strong><span class="icon">≋</span> PADS</strong><span class="muted">3 LAYERS</span></div><div id="pads" class="channel-row"></div></div>
-  <div class="channel-group"><div class="section-title"><strong><span class="icon teal">∿</span> PERCUSSION</strong><span class="muted">3 LAYERS</span></div><div id="percussion" class="channel-row"></div></div>
+  <div class="channel-group"><div class="section-title"><strong><span class="icon">≋</span> PADS</strong><span class="muted">3 LAYERS</span></div><div id="pads" class="channel-row"></div><div class="bus-strip pad-bus"><strong>PAD BUS</strong><output id="padBusVal">85%</output><input id="padBus" aria-label="Pads bus volume" type="range" min="0" max="100" value="85"><small>BUS</small></div></div>
+  <div class="channel-group"><div class="section-title"><strong><span class="icon teal">∿</span> PERCUSSION</strong><span class="muted">3 LAYERS</span></div><div id="percussion" class="channel-row"></div><div class="bus-strip perc-bus"><strong>PERC BUS</strong><output id="percBusVal">85%</output><input id="percBus" aria-label="Percussion bus volume" type="range" min="0" max="100" value="85"><small>BUS</small></div></div>
   <div class="master-strip"><div class="heading"><span class="icon">⌁</span>MASTER</div><div class="master-readout" id="masterVal">85%</div><input id="master" aria-label="Master volume" type="range" min="0" max="100" value="85"><span class="muted">VOLUME</span></div>
  </section>
 </main><footer>Worship Loop · Interactive design preview only — no audio playback yet.</footer>
@@ -148,4 +187,6 @@ function layer(name,sub,perc){let el=document.createElement('div');el.className=
 [['Percussion 1','Soft pulse'],['Percussion 2','Shaker / groove'],['Percussion 3','Build / accents']].forEach(x=>document.querySelector('#percussion').append(layer(...x,true)));
 document.querySelectorAll('#fade button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#fade button').forEach(x=>x.classList.toggle('selected',x===b))});
 document.querySelector('#master').oninput=e=>document.querySelector('#masterVal').textContent=e.target.value+'%';
+document.querySelector('#padBus').oninput=e=>document.querySelector('#padBusVal').textContent=e.target.value+'%';
+document.querySelector('#percBus').oninput=e=>document.querySelector('#percBusVal').textContent=e.target.value+'%';
 </script></body></html>
