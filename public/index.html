@@ -311,6 +311,15 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
 .layer-name b{letter-spacing:.1px}
 .layer .volume input:focus-visible,.bus-strip input:focus-visible,.master-strip input:focus-visible{outline-color:#b9d7ff}
 
+
+/* Align the slider cap center with the narrow vertical track (mobile Chrome) */
+.layer .volume input::-webkit-slider-thumb,
+.bus-strip input::-webkit-slider-thumb,
+.master-strip input::-webkit-slider-thumb{transform:translateX(-12px)}
+.layer .volume input::-moz-range-thumb,
+.bus-strip input::-moz-range-thumb,
+.master-strip input::-moz-range-thumb{transform:translateX(-12px)}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
