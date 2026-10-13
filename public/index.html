@@ -21,6 +21,7 @@ input[type=range]{width:100%;accent-color:var(--blue);height:20px;margin:0}selec
 .play{width:30px;height:30px;border:0;border-radius:9px;background:#26364a;color:var(--blue);font-size:17px}.perc .play{color:var(--teal)}.play.active{background:var(--blue);color:#07111d}.perc .play.active{background:var(--teal)}
 .volume{display:flex;align-items:center;gap:7px;margin-top:5px}.volume input{flex:1}.volume span{width:29px;text-align:right;font-size:9px;color:#c1cee0}
 .segment{display:flex;gap:4px;margin-top:8px}.segment button{flex:1;border:1px solid #35465d;background:#101722;color:#c2cfe1;border-radius:8px;padding:7px 2px;font-size:11px}.segment button.selected{background:#244566;border-color:#5284ba;color:#e7f2ff}
+.key-mode{margin-top:8px}.key-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:9px}.key-btn{padding:9px 3px;border-radius:9px;border:1px solid #34465d;background:#101722;color:#dce7f8;font-weight:750;font-size:12px}.key-btn.selected{background:#244566;border-color:#82b5ff;color:#fff;box-shadow:inset 0 0 0 1px #82b5ff55}.key-current{font-size:12px;color:#cfe2ff;font-weight:800;margin-left:auto}
 .toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:11px}.toggle input{accent-color:var(--teal);width:17px;height:17px}
 .masterrow{display:flex;align-items:center;gap:7px}.masterrow input{flex:1}.masterrow b{font-size:10px;width:30px;text-align:right}
 footer{text-align:center;color:#6f8198;font-size:10px;padding:6px 12px 18px}
@@ -37,7 +38,7 @@ footer{text-align:center;color:#6f8198;font-size:10px;padding:6px 12px 18px}
  <div class="bpmrow"><button class="round" id="minus">−</button><div class="bpm" id="bpm">72</div><button class="round" id="plus">+</button></div>
  <input aria-label="Tempo" id="tempo" type="range" min="30" max="240" value="72"><button class="tap" id="tap">✳ &nbsp; TAP TEMPO</button></div>
  <div class="panel"><div class="heading"><span class="icon teal">♫</span>GLOBAL KEY <span class="muted" style="margin-left:auto">24 KEYS</span></div>
- <select id="key" aria-label="Global key"></select><p class="muted">Choose any major or minor key. Actual pitch shifting will be connected with the audio engine.</p></div>
+ <div class="segment key-mode" id="keyMode"><button class="selected" data-mode="Major">Major</button><button data-mode="Minor">Minor</button></div><div class="key-buttons" id="keyButtons" aria-label="Choose root note"></div><div class="muted" style="margin-top:9px">Selected key <span class="key-current" id="keyCurrent">C Major</span></div><p class="muted">Choose a note button, then switch between Major and Minor. Actual pitch shifting will be connected with the audio engine.</p></div>
 </section>
 <section class="middle"><div class="section-title"><strong><span class="icon">≋</span> PADS</strong><span class="muted">SUSTAINING · 3 LAYERS</span></div><div id="pads"></div></section>
 <section class="right"><div class="section-title"><strong><span class="icon teal">∿</span> PERCUSSION</strong><span class="muted">TEMPO-SYNCED · 3 LAYERS</span></div><div id="percussion"></div>
@@ -47,7 +48,7 @@ footer{text-align:center;color:#6f8198;font-size:10px;padding:6px 12px 18px}
 </section>
 </main><footer>Worship Loop · Interactive design preview only — no audio playback yet.</footer>
 <script>
-const keys=['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];const sel=document.querySelector('#key');[...keys.map(k=>k+' Major'),...['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'].map(k=>k+' Minor')].forEach(k=>{let o=document.createElement('option');o.textContent=k;o.value=k;sel.append(o)});
+const keys=['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];let selectedRoot='C',selectedMode='Major';const keyButtons=document.querySelector('#keyButtons');keys.forEach(k=>{const b=document.createElement('button');b.className='key-btn'+(k===selectedRoot?' selected':'');b.textContent=k;b.setAttribute('aria-label','Select '+k);b.onclick=()=>{selectedRoot=k;keyButtons.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()};keyButtons.append(b)});function updateKey(){document.querySelector('#keyCurrent').textContent=selectedRoot+' '+selectedMode}document.querySelectorAll('#keyMode button').forEach(b=>b.onclick=()=>{selectedMode=b.dataset.mode;document.querySelectorAll('#keyMode button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()});
 let bpm=72;function setBpm(v){bpm=Math.max(30,Math.min(240,v));document.querySelector('#bpm').textContent=bpm;document.querySelector('#tempo').value=bpm}
 document.querySelector('#minus').onclick=()=>setBpm(bpm-1);document.querySelector('#plus').onclick=()=>setBpm(bpm+1);document.querySelector('#tempo').oninput=e=>setBpm(+e.target.value);
 let taps=[];document.querySelector('#tap').onclick=()=>{let now=Date.now();taps.push(now);if(taps.length>5)taps.shift();if(taps.length>1){let intervals=taps.slice(1).map((t,i)=>t-taps[i]);let avg=intervals.reduce((a,b)=>a+b,0)/intervals.length;if(avg>=250&&avg<=2000)setBpm(Math.round(60000/avg))}};
