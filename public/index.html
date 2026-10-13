@@ -52,15 +52,30 @@ main{display:block;max-width:1600px;padding:10px 12px 14px}
 @media(max-width:900px){.top-controls{grid-template-columns:minmax(150px,.75fr) minmax(280px,1.4fr);}.transition-panel{grid-column:1/-1}.mixer{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 68px}.key-btn{font-size:10px;padding:8px 0}}
 @media(max-width:650px) and (orientation:portrait){main{padding:10px;max-width:560px}.top-controls{grid-template-columns:1fr}.transition-panel{grid-column:auto}.key-buttons{grid-template-columns:repeat(6,minmax(0,1fr))}.mixer{grid-template-columns:1fr;}.channel-row{grid-template-columns:repeat(3,minmax(0,1fr))}.layer{min-height:185px}.layer .volume input{min-height:58px}.master-strip{min-height:115px;flex-direction:row;gap:12px;justify-content:space-around}.master-strip .heading{flex-direction:row}.master-strip input{appearance:auto;-webkit-appearance:auto;writing-mode:horizontal-tb;direction:ltr;width:auto;min-height:20px;max-height:none;flex:1}.master-strip .muted{writing-mode:horizontal-tb;margin:0}}
 @media(max-height:480px) and (orientation:landscape){header{height:42px;padding:0 12px}.notice{margin:6px 12px 0;padding:4px 8px;font-size:10px}main{padding:7px 10px}.top-controls{grid-template-columns:minmax(160px,.72fr) minmax(300px,1.5fr) minmax(190px,.9fr);gap:7px;margin-bottom:7px}.top-controls .panel{padding:6px 8px}.top-controls .tempo .bpm{font-size:29px}.top-controls .heading{font-size:10px}.key-buttons{gap:3px;margin-top:5px}.key-btn{padding:6px 0;font-size:10px}.key-topline .segment{margin-top:4px}.key-topline .segment button{padding:4px 2px}.transition-panel .muted{margin-top:4px!important}.transition-panel .segment{margin-top:4px}.transition-panel .segment button{padding:4px 1px;font-size:10px}.transition-panel .toggle{margin-top:3px;font-size:10px}.mixer{gap:7px;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 62px}.channel-group{padding:6px}.section-title{margin-bottom:5px}.layer{min-height:150px;padding:5px 3px}.layer-top{gap:3px}.layer-icon{width:25px;height:25px}.layer-name b{font-size:10px}.layer-name small{font-size:8px;min-height:20px}.play{width:29px;height:27px}.layer .volume{margin-top:4px;gap:2px}.layer .volume input{min-height:42px;max-height:58px;width:7px}.master-strip{padding:6px 4px}.master-strip .master-readout{margin:4px 0}.master-strip input{min-height:70px;max-height:95px}footer{padding:0 8px 6px}}
+
+/* Compact settings control and DAW faders sized to the available landscape viewport */
+.settings-trigger{display:inline-flex;align-items:center;gap:6px;border:1px solid #344b66;background:#17263a;color:#dceaff;border-radius:9px;padding:6px 9px;font-size:12px;font-weight:800;letter-spacing:.35px;box-shadow:inset 0 1px #ffffff0a}
+.settings-trigger span{font-size:9px;letter-spacing:1px}
+.control-launchers{display:none!important}
+@media (orientation:landscape){
+ main{padding:8px 10px 10px}
+ .mixer{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 58px;gap:7px}
+ .channel-group{padding:6px}
+ .layer{min-height:clamp(180px,calc(100dvh - 180px),340px);padding:6px 3px}
+ .layer .volume{min-height:0;flex:1}
+ .layer .volume input{height:clamp(88px,calc(100dvh - 300px),220px);min-height:88px;max-height:220px}
+ .master-strip input{min-height:clamp(100px,calc(100dvh - 275px),240px);max-height:240px}
+}
+@media(max-width:650px) and (orientation:portrait){
+ .settings-trigger{padding:6px 8px}
+ .settings-trigger span{display:none}
+}
+
 </style></head>
 <body>
-<header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><span class="pill">UI PREVIEW</span></header>
+<header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
 <div class="notice">ⓘ Controls are interactive for layout testing. Audio playback is not connected yet.</div>
 <main>
- <div class="control-launchers">
-  <button class="control-launch" id="openTempo"><span>◷ TEMPO</span><strong id="tempoSummary">72 BPM</strong><small>Tap to adjust</small></button>
-  <button class="control-launch" id="openKey"><span>♫ GLOBAL KEY</span><strong id="keySummary">C Major</strong><small>Tap to change key</small></button>
- </div>
  <div class="control-window" id="controlWindow" aria-hidden="true">
   <div class="window-head"><div><strong>PERFORMANCE CONTROLS</strong><small>Tempo · Key · Transitions</small></div><button class="window-close" id="closeControls" aria-label="Close controls">×</button></div>
  <section class="top-controls">
@@ -82,13 +97,13 @@ main{display:block;max-width:1600px;padding:10px 12px 14px}
  </section>
 </main><footer>Worship Loop · Interactive design preview only — no audio playback yet.</footer>
 <script>
-const keys=['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];let selectedRoot='C',selectedMode='Major';const keyButtons=document.querySelector('#keyButtons');keys.forEach(k=>{const b=document.createElement('button');b.className='key-btn'+(k===selectedRoot?' selected':'');b.textContent=k;b.setAttribute('aria-label','Select '+k);b.onclick=()=>{selectedRoot=k;keyButtons.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()};keyButtons.append(b)});function updateKey(){const label=selectedRoot+' '+selectedMode;document.querySelector('#keyCurrent').textContent=label;document.querySelector('#keySummary').textContent=label}document.querySelectorAll('#keyMode button').forEach(b=>b.onclick=()=>{selectedMode=b.dataset.mode;document.querySelectorAll('#keyMode button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()});
+const keys=['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];let selectedRoot='C',selectedMode='Major';const keyButtons=document.querySelector('#keyButtons');keys.forEach(k=>{const b=document.createElement('button');b.className='key-btn'+(k===selectedRoot?' selected':'');b.textContent=k;b.setAttribute('aria-label','Select '+k);b.onclick=()=>{selectedRoot=k;keyButtons.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()};keyButtons.append(b)});function updateKey(){const label=selectedRoot+' '+selectedMode;document.querySelector('#keyCurrent').textContent=label}document.querySelectorAll('#keyMode button').forEach(b=>b.onclick=()=>{selectedMode=b.dataset.mode;document.querySelectorAll('#keyMode button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()});
 const controlWindow=document.querySelector('#controlWindow');
 function openControls(){controlWindow.classList.add('open');controlWindow.setAttribute('aria-hidden','false')}
 function closeControls(){controlWindow.classList.remove('open');controlWindow.setAttribute('aria-hidden','true')}
-document.querySelector('#openTempo').onclick=openControls;document.querySelector('#openKey').onclick=openControls;document.querySelector('#closeControls').onclick=closeControls;
+document.querySelector('#openSettings').onclick=openControls;document.querySelector('#closeControls').onclick=closeControls;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeControls()});
-let bpm=72;function setBpm(v){bpm=Math.max(30,Math.min(240,v));document.querySelector('#bpm').textContent=bpm;document.querySelector('#tempo').value=bpm;document.querySelector('#tempoSummary').textContent=bpm+' BPM'}
+let bpm=72;function setBpm(v){bpm=Math.max(30,Math.min(240,v));document.querySelector('#bpm').textContent=bpm;document.querySelector('#tempo').value=bpm}
 document.querySelector('#minus').onclick=()=>setBpm(bpm-1);document.querySelector('#plus').onclick=()=>setBpm(bpm+1);document.querySelector('#tempo').oninput=e=>setBpm(+e.target.value);
 let taps=[];document.querySelector('#tap').onclick=()=>{let now=Date.now();taps.push(now);if(taps.length>5)taps.shift();if(taps.length>1){let intervals=taps.slice(1).map((t,i)=>t-taps[i]);let avg=intervals.reduce((a,b)=>a+b,0)/intervals.length;if(avg>=250&&avg<=2000)setBpm(Math.round(60000/avg))}};
 function layer(name,sub,perc){let el=document.createElement('div');el.className='layer'+(perc?' perc':'');el.innerHTML='<div class="layer-top"><div class="layer-icon">'+(perc?'∿':'≋')+'</div><div class="layer-name"><b>'+name+'</b><small>'+sub+'</small></div><button class="play" aria-label="Toggle '+name+'">▶</button></div><div class="volume"><span>◖</span><input aria-label="'+name+' volume" type="range" min="0" max="100" value="72"><span class="pct">72%</span></div>';let play=el.querySelector('.play');play.onclick=()=>{let on=play.classList.toggle('active');play.textContent=on?'■':'▶';play.setAttribute('aria-label',(on?'Stop ':'Start ')+name+' preview state')};let range=el.querySelector('input');range.oninput=()=>el.querySelector('.pct').textContent=range.value+'%';return el}
