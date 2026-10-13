@@ -71,6 +71,43 @@ main{display:block;max-width:1600px;padding:10px 12px 14px}
  .settings-trigger span{display:none}
 }
 
+/* Final pass: compact landscape DAW mixer and focused settings window */
+.settings-trigger{width:34px;height:32px;justify-content:center;padding:0;border-radius:8px;font-size:15px}
+.settings-trigger span{display:none}
+body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;background:#030812b8;backdrop-filter:blur(3px)}
+.control-window{left:50%;right:auto;top:50%;width:min(900px,calc(100vw - 24px));max-height:calc(100dvh - 28px);transform:translate(-50%,-46%) scale(.98);border-radius:15px;padding:12px;box-shadow:0 24px 90px #000d;z-index:10}
+.control-window.open{transform:translate(-50%,-50%) scale(1)}
+.window-head{position:sticky;top:-12px;background:#0a1019f5;padding:4px 0 8px;z-index:2}
+@media (orientation:landscape){
+ body{min-height:100dvh;overflow-x:hidden}
+ header{height:46px;padding:0 12px}
+ .notice{margin:6px 10px 0;padding:5px 9px;font-size:10px}
+ main{padding:7px 9px 8px;max-width:none;width:100%}
+ .mixer{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 56px;gap:7px;width:100%}
+ .channel-group{padding:5px;min-width:0}
+ .channel-row{gap:5px}
+ .section-title{margin:0 2px 5px}
+ .layer{min-width:0;min-height:clamp(150px,calc(100dvh - 145px),270px);padding:5px 2px;overflow:hidden}
+ .layer-top{gap:3px}
+ .layer-icon{width:23px;height:23px}
+ .layer-name b{font-size:clamp(9px,1.15vw,11px)}
+ .layer-name small{font-size:8px;min-height:18px}
+ .play{width:26px;height:24px}
+ .layer .volume{margin-top:2px;gap:2px}
+ .layer .volume input{height:clamp(75px,calc(100dvh - 245px),175px);min-height:75px;max-height:175px;width:9px}
+ .layer .volume span.pct{font-size:9px}
+ .master-strip{padding:6px 3px}
+ .master-strip input{min-height:clamp(80px,calc(100dvh - 230px),190px);max-height:190px;width:9px}
+ .master-strip .master-readout{font-size:12px;margin:7px 0}
+ footer{padding:0 8px 5px}
+}
+@media(max-width:650px) and (orientation:portrait){
+ .control-window{width:calc(100vw - 14px);top:50%;max-height:calc(100dvh - 18px);padding:9px}
+ .window-head{top:-9px}
+ .control-window .top-controls{grid-template-columns:1fr}
+ .control-window .transition-panel{grid-column:auto}
+}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
@@ -99,8 +136,8 @@ main{display:block;max-width:1600px;padding:10px 12px 14px}
 <script>
 const keys=['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];let selectedRoot='C',selectedMode='Major';const keyButtons=document.querySelector('#keyButtons');keys.forEach(k=>{const b=document.createElement('button');b.className='key-btn'+(k===selectedRoot?' selected':'');b.textContent=k;b.setAttribute('aria-label','Select '+k);b.onclick=()=>{selectedRoot=k;keyButtons.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()};keyButtons.append(b)});function updateKey(){const label=selectedRoot+' '+selectedMode;document.querySelector('#keyCurrent').textContent=label}document.querySelectorAll('#keyMode button').forEach(b=>b.onclick=()=>{selectedMode=b.dataset.mode;document.querySelectorAll('#keyMode button').forEach(x=>x.classList.toggle('selected',x===b));updateKey()});
 const controlWindow=document.querySelector('#controlWindow');
-function openControls(){controlWindow.classList.add('open');controlWindow.setAttribute('aria-hidden','false')}
-function closeControls(){controlWindow.classList.remove('open');controlWindow.setAttribute('aria-hidden','true')}
+function openControls(){controlWindow.classList.add('open');document.body.classList.add('settings-open');controlWindow.setAttribute('aria-hidden','false')}
+function closeControls(){controlWindow.classList.remove('open');document.body.classList.remove('settings-open');controlWindow.setAttribute('aria-hidden','true')}
 document.querySelector('#openSettings').onclick=openControls;document.querySelector('#closeControls').onclick=closeControls;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeControls()});
 let bpm=72;function setBpm(v){bpm=Math.max(30,Math.min(240,v));document.querySelector('#bpm').textContent=bpm;document.querySelector('#tempo').value=bpm}
