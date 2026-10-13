@@ -324,15 +324,19 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
 
 
 
-/* Distinguish the six mixer layers with clear, consistent channel colours */
-#pads .layer:nth-child(1){--fader:#60a5fa!important;border-color:#60a5fa99!important}
-#pads .layer:nth-child(2){--fader:#a78bfa!important;border-color:#a78bfa99!important}
-#pads .layer:nth-child(3){--fader:#22d3ee!important;border-color:#22d3ee99!important}
-#percussion .layer:nth-child(1){--fader:#34d399!important;border-color:#34d39999!important}
-#percussion .layer:nth-child(2){--fader:#fbbf24!important;border-color:#fbbf2499!important}
-#percussion .layer:nth-child(3){--fader:#fb7185!important;border-color:#fb718599!important}
-#pads .layer .volume span.pct,
-#percussion .layer .volume span.pct{color:var(--fader)!important}
+/* Colour only the six vertical fader tracks; keep caps, borders and readouts unchanged */
+#pads .layer:nth-child(1) .volume input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#60a5fa66 8px 9px),linear-gradient(90deg,transparent 0 36%,#60a5fa 36%,#60a5fa 64%,transparent 64% 100%)}
+#pads .layer:nth-child(2) .volume input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#a78bfa66 8px 9px),linear-gradient(90deg,transparent 0 36%,#a78bfa 36%,#a78bfa 64%,transparent 64% 100%)}
+#pads .layer:nth-child(3) .volume input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#22d3ee66 8px 9px),linear-gradient(90deg,transparent 0 36%,#22d3ee 36%,#22d3ee 64%,transparent 64% 100%)}
+#percussion .layer:nth-child(1) .volume input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#34d39966 8px 9px),linear-gradient(90deg,transparent 0 36%,#34d399 36%,#34d399 64%,transparent 64% 100%)}
+#percussion .layer:nth-child(2) .volume input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fbbf2466 8px 9px),linear-gradient(90deg,transparent 0 36%,#fbbf24 36%,#fbbf24 64%,transparent 64% 100%)}
+#percussion .layer:nth-child(3) .volume input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fb718566 8px 9px),linear-gradient(90deg,transparent 0 36%,#fb7185 36%,#fb7185 64%,transparent 64% 100%)}
+#pads .layer:nth-child(1) .volume input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#60a5fa66 8px 9px),linear-gradient(90deg,transparent 0 36%,#60a5fa 36%,#60a5fa 64%,transparent 64% 100%)}
+#pads .layer:nth-child(2) .volume input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#a78bfa66 8px 9px),linear-gradient(90deg,transparent 0 36%,#a78bfa 36%,#a78bfa 64%,transparent 64% 100%)}
+#pads .layer:nth-child(3) .volume input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#22d3ee66 8px 9px),linear-gradient(90deg,transparent 0 36%,#22d3ee 36%,#22d3ee 64%,transparent 64% 100%)}
+#percussion .layer:nth-child(1) .volume input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#34d39966 8px 9px),linear-gradient(90deg,transparent 0 36%,#34d399 36%,#34d399 64%,transparent 64% 100%)}
+#percussion .layer:nth-child(2) .volume input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fbbf2466 8px 9px),linear-gradient(90deg,transparent 0 36%,#fbbf24 36%,#fbbf24 64%,transparent 64% 100%)}
+#percussion .layer:nth-child(3) .volume input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fb718566 8px 9px),linear-gradient(90deg,transparent 0 36%,#fb7185 36%,#fb7185 64%,transparent 64% 100%)}
 
 /* Keep every mixer fader cap and level readout the same blue */
 .layer,
