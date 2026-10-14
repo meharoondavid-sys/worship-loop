@@ -355,6 +355,38 @@ body.settings-open::before{content:"";position:fixed;inset:0;z-index:8;backgroun
 .perc-bus input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#73d6c066 8px 9px),linear-gradient(90deg,transparent 0 36%,#73d6c0 36%,#73d6c0 64%,transparent 64% 100%)}
 .master-strip input::-webkit-slider-runnable-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fbbf2466 8px 9px),linear-gradient(90deg,transparent 0 36%,#fbbf24 36%,#fbbf24 64%,transparent 64% 100%)}
 .master-strip input::-moz-range-track{background:repeating-linear-gradient(to bottom,transparent 0 8px,#fbbf2466 8px 9px),linear-gradient(90deg,transparent 0 36%,#fbbf24 36%,#fbbf24 64%,transparent 64% 100%)}
+
+/* Calm matte-grey mixer palette with subtle channel boundaries */
+:root{color-scheme:dark;--bg:#777b80;--panel:#85898e;--line:#62676d;--blue:#c8cdd2;--teal:#c8cdd2;--muted:#e0e2e4}
+body{background:#777b80;color:#f5f5f5}
+header{background:#777b80;border-bottom:1px solid #686d72}
+.pill,.notice{background:#85898e;border-color:#686d72;color:#f5f5f5}
+.panel,.layer{background:#85898e;border-color:#686d72;box-shadow:none}
+.tempo,.control-launch,.control-window{background:#85898e;border-color:#62676d}
+.channel-group{background:#70757a;border-color:#62676d;box-shadow:none}
+.layer{background:#8b8f94;border-color:var(--channel,#aeb4bb);box-shadow:none}
+.channel-group:first-child .layer:nth-child(1){--channel:#a5c6e8}
+.channel-group:first-child .layer:nth-child(2){--channel:#c0b0df}
+.channel-group:first-child .layer:nth-child(3){--channel:#9ed7df}
+.channel-group:nth-child(2) .layer:nth-child(1){--channel:#9bd6c9}
+.channel-group:nth-child(2) .layer:nth-child(2){--channel:#e0c58d}
+.channel-group:nth-child(2) .layer:nth-child(3){--channel:#d9a6b0}
+.layer.perc{background:#8b8f94}
+.layer-icon,.perc .layer-icon{background:#777b80;color:#f1f2f3}
+.play,.perc .play{background:#777b80;color:#f4f4f4}
+.play.active,.perc .play.active{background:#d4d7da;color:#34383c}
+.master-strip,.bus-strip{background:#81868b;border-color:#686d72}
+select,.segment button,.key-btn,.round,.window-close{background:#777b80;border-color:#686d72;color:#f5f5f5}
+.segment button.selected,.key-btn.selected{background:#666c72;border-color:#d7dade;color:#fff}
+.tap{background:#d2d5d8;color:#34383c}
+.layer .volume input,.bus-strip input,.master-strip input{--level:72%;--fader:#b7bdc3}
+.layer .volume input::-webkit-slider-runnable-track,.bus-strip input::-webkit-slider-runnable-track,.master-strip input::-webkit-slider-runnable-track{background:linear-gradient(to top,var(--fader) 0 var(--level),#c3c7cb var(--level) 100%);border:1px solid #656a70;border-radius:3px}
+.layer .volume input::-moz-range-track,.bus-strip input::-moz-range-track,.master-strip input::-moz-range-track{background:linear-gradient(to top,var(--fader) 0 var(--level),#c3c7cb var(--level) 100%);border:1px solid #656a70;border-radius:3px}
+.layer .volume input::-webkit-slider-thumb,.bus-strip input::-webkit-slider-thumb,.master-strip input::-webkit-slider-thumb{background:linear-gradient(180deg,#e4e6e8,#aeb3b8);border:1px solid #686d72;box-shadow:0 1px 3px #45494d,inset 0 1px #fff}
+.layer .volume input::-moz-range-thumb,.bus-strip input::-moz-range-thumb,.master-strip input::-moz-range-thumb{background:linear-gradient(180deg,#e4e6e8,#aeb3b8);border:1px solid #686d72;box-shadow:0 1px 3px #45494d,inset 0 1px #fff}
+.layer .volume span.pct,.bus-strip output,.master-strip .master-readout{color:#f5f5f5!important}
+footer{color:#e0e2e4}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
@@ -390,11 +422,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeControls()});
 let bpm=72;function setBpm(v){bpm=Math.max(30,Math.min(240,v));document.querySelector('#bpm').textContent=bpm;document.querySelector('#tempo').value=bpm}
 document.querySelector('#minus').onclick=()=>setBpm(bpm-1);document.querySelector('#plus').onclick=()=>setBpm(bpm+1);document.querySelector('#tempo').oninput=e=>setBpm(+e.target.value);
 let taps=[];document.querySelector('#tap').onclick=()=>{let now=Date.now();taps.push(now);if(taps.length>5)taps.shift();if(taps.length>1){let intervals=taps.slice(1).map((t,i)=>t-taps[i]);let avg=intervals.reduce((a,b)=>a+b,0)/intervals.length;if(avg>=250&&avg<=2000)setBpm(Math.round(60000/avg))}};
-function layer(name,sub,perc){let el=document.createElement('div');el.className='layer'+(perc?' perc':'');el.innerHTML='<div class="layer-top"><div class="layer-icon">'+(perc?'∿':'≋')+'</div><div class="layer-name"><b>'+name+'</b><small>'+sub+'</small></div><button class="play" aria-label="Toggle '+name+'">▶</button></div><div class="volume"><span>◖</span><input aria-label="'+name+' volume" type="range" min="0" max="100" value="72"><span class="pct">72%</span></div>';let play=el.querySelector('.play');play.onclick=()=>{let on=play.classList.toggle('active');play.textContent=on?'■':'▶';play.setAttribute('aria-label',(on?'Stop ':'Start ')+name+' preview state')};let range=el.querySelector('input');range.oninput=()=>el.querySelector('.pct').textContent=range.value+'%';return el}
+function layer(name,sub,perc){let el=document.createElement('div');el.className='layer'+(perc?' perc':'');el.innerHTML='<div class="layer-top"><div class="layer-icon">'+(perc?'∿':'≋')+'</div><div class="layer-name"><b>'+name+'</b><small>'+sub+'</small></div><button class="play" aria-label="Toggle '+name+'">▶</button></div><div class="volume"><span>◖</span><input aria-label="'+name+' volume" type="range" min="0" max="100" value="72"><span class="pct">72%</span></div>';let play=el.querySelector('.play');play.onclick=()=>{let on=play.classList.toggle('active');play.textContent=on?'■':'▶';play.setAttribute('aria-label',(on?'Stop ':'Start ')+name+' preview state')};let range=el.querySelector('input');range.style.setProperty('--level',range.value+'%');range.oninput=()=>{el.querySelector('.pct').textContent=range.value+'%';range.style.setProperty('--level',range.value+'%')};return el}
 [['Pad 1','Warm atmosphere'],['Pad 2','Soft texture'],['Pad 3','Deep ambience']].forEach(x=>document.querySelector('#pads').append(layer(...x,false)));
 [['Percussion 1','Soft pulse'],['Percussion 2','Shaker / groove'],['Percussion 3','Build / accents']].forEach(x=>document.querySelector('#percussion').append(layer(...x,true)));
 document.querySelectorAll('#fade button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#fade button').forEach(x=>x.classList.toggle('selected',x===b))});
-document.querySelector('#master').oninput=e=>document.querySelector('#masterVal').textContent=e.target.value+'%';
-document.querySelector('#padBus').oninput=e=>document.querySelector('#padBusVal').textContent=e.target.value+'%';
-document.querySelector('#percBus').oninput=e=>document.querySelector('#percBusVal').textContent=e.target.value+'%';
+['master','padBus','percBus'].forEach(id=>{const el=document.querySelector('#'+id);el.style.setProperty('--level',el.value+'%');el.oninput=e=>{document.querySelector('#'+({master:'masterVal',padBus:'padBusVal',percBus:'percBusVal'})[id]).textContent=e.target.value+'%';el.style.setProperty('--level',e.target.value+'%')}});
 </script></body></html>
