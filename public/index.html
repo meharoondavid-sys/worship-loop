@@ -473,6 +473,13 @@ footer{color:#aeb4ba}
 .bus-strip input::-moz-range-track,
 .master-strip input::-moz-range-track{background:transparent!important}
 
+
+/* Distinct colour for each channel's live fader fill; caps remain unchanged */
+.layer .volume input{--fader:var(--channel,#82b5ff)!important}
+#padBus{--fader:#70c9bd!important}
+#percBus{--fader:#e3b86c!important}
+#master{--fader:#bd9be8!important}
+
 </style></head><body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
 <div class="notice">ⓘ Controls are interactive for layout testing. Audio playback is not connected yet.</div>
