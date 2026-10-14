@@ -388,6 +388,28 @@ select,.segment button,.key-btn,.round,.window-close{background:#777b80;border-c
 footer{color:#e0e2e4}
 
 
+/* Make the fader fill itself follow the live range value (Chrome Android + Firefox) */
+.layer .volume input,.bus-strip input,.master-strip input{
+  --level:72%;
+  --fader:#82b5ff;
+  background-color:transparent!important;
+  background-image:
+    linear-gradient(to top,var(--fader) 0%,var(--fader) 100%),
+    linear-gradient(90deg,transparent 0 36%,#090d12 36%,#202831 45%,#11171e 50%,#303941 56%,#080b10 64%,transparent 64% 100%)!important;
+  background-size:28% var(--level),100% 100%!important;
+  background-position:center bottom,center!important;
+  background-repeat:no-repeat!important;
+}
+.layer .volume input::-webkit-slider-runnable-track,
+.bus-strip input::-webkit-slider-runnable-track,
+.master-strip input::-webkit-slider-runnable-track{background:transparent!important}
+.layer .volume input::-moz-range-track,
+.bus-strip input::-moz-range-track,
+.master-strip input::-moz-range-track{background:transparent!important}
+.layer .volume input::-webkit-slider-thumb,
+.bus-strip input::-webkit-slider-thumb,
+.master-strip input::-webkit-slider-thumb{position:relative}
+
 /* Deeper, more restrained graphite finish — minimal palette-only refinement */
 :root{--bg:#303438;--panel:#3a3f44;--line:#292d31;--muted:#aeb4ba}
 body{background:linear-gradient(145deg,#303438,#282c30);color:#edf0f2}
