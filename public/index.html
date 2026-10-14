@@ -453,6 +453,26 @@ select,.segment button,.key-btn,.round,.window-close{background:#303539;border-c
 .layer .volume span.pct,.bus-strip output,.master-strip .master-readout{color:#edf0f2!important}
 footer{color:#aeb4ba}
 
+
+/* FINAL: visible coloured fill inside the full fader slot, driven by each slider's --level */
+.layer .volume input,.bus-strip input,.master-strip input{
+  --level:72%;
+  --fader:#82b5ff;
+  background-color:#0a0e13!important;
+  background-image:linear-gradient(to top,var(--fader) 0,var(--fader) var(--level),#303840 var(--level),#303840 100%)!important;
+  background-size:8px 100%!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  border-radius:5px!important;
+  box-shadow:inset 0 0 0 1px #05080c,0 0 0 1px #58616a!important;
+}
+.layer .volume input::-webkit-slider-runnable-track,
+.bus-strip input::-webkit-slider-runnable-track,
+.master-strip input::-webkit-slider-runnable-track{background:transparent!important}
+.layer .volume input::-moz-range-track,
+.bus-strip input::-moz-range-track,
+.master-strip input::-moz-range-track{background:transparent!important}
+
 </style></head><body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
 <div class="notice">ⓘ Controls are interactive for layout testing. Audio playback is not connected yet.</div>
