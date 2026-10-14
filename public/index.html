@@ -388,7 +388,21 @@ select,.segment button,.key-btn,.round,.window-close{background:#777b80;border-c
 footer{color:#e0e2e4}
 
 
-/* Make the fader fill itself follow the live range value (Chrome Android + Firefox) */
+/* Reliable level fill: paint the live value directly inside each fader slot */
+.layer .volume input,.bus-strip input,.master-strip input{
+  --level:72%;
+  --fader:#82b5ff;
+  background:linear-gradient(to top,var(--fader) 0,var(--fader) var(--level),transparent var(--level),transparent 100%) center bottom/38% 100% no-repeat!important;
+  background-color:transparent!important;
+}
+.layer .volume input::-webkit-slider-runnable-track,
+.bus-strip input::-webkit-slider-runnable-track,
+.master-strip input::-webkit-slider-runnable-track{background:linear-gradient(90deg,transparent 0 36%,#090d12 36%,#202831 45%,#11171e 50%,#303941 56%,#080b10 64%,transparent 64% 100%)!important}
+.layer .volume input::-moz-range-track,
+.bus-strip input::-moz-range-track,
+.master-strip input::-moz-range-track{background:linear-gradient(90deg,transparent 0 36%,#090d12 36%,#202831 45%,#11171e 50%,#303941 56%,#080b10 64%,transparent 64% 100%)!important}
+
+
 .layer .volume input,.bus-strip input,.master-strip input{
   --level:72%;
   --fader:#82b5ff;
