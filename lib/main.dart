@@ -165,7 +165,7 @@ class _MixerScreenState extends State<MixerScreen> {
     bytes.setUint32(40, dataSize, Endian.little);
 
     final keyRoot = _availableKeys.indexOf(_globalKey) % 12;
-    final rootHz = 65.406 * math.pow(2, keyRoot / 12);
+    final rootHz = (65.406 * math.pow(2, keyRoot / 12)).toDouble();
     final padNotes = [rootHz, rootHz * 1.5, rootHz * 2.0, rootHz * 2.5];
     final random = math.Random(100 + layerIndex);
     final beatSeconds = 60.0 / _bpm;
