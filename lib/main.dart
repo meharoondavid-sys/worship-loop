@@ -462,7 +462,7 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Widget _landscapeMasterFader() {
     return Container(
-      decoration: BoxDecoration(color: const Color(0xFF111923), border: Border.all(color: const Color(0xFFEAB30888)), borderRadius: BorderRadius.circular(9)),
+      decoration: BoxDecoration(color: const Color(0xFF111923), border: Border.all(color: const Color(0x88EAB308)), borderRadius: BorderRadius.circular(9)),
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 3),
       child: Column(children: [
         const Text('MASTER', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Color(0xFFFBBF24))),
@@ -491,6 +491,7 @@ class _MixerScreenState extends State<MixerScreen> {
     _updateMasterVolume(_masterVolume);
   }
 
+  // ignore: unused_element
   Widget _landscapeLayerColumn({
     required String title,
     required String subtitle,
@@ -754,6 +755,7 @@ class _MixerScreenState extends State<MixerScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _compactMasterPanel() {
     return Card(
       child: Padding(
