@@ -89,7 +89,7 @@ class _MixerScreenState extends State<MixerScreen> {
   String _fadeLength = '½ bar';
   bool _transitionTogether = true;
   final List<DateTime> _tapTimes = [];
-  final AudioPlayer _padPlayer = AudioPlayer();
+  final Map<String, AudioPlayer> _players = {};
   bool _audioReady = false;
   bool _audioLoading = false;
   String? _audioError;
@@ -97,12 +97,13 @@ class _MixerScreenState extends State<MixerScreen> {
   @override
   void initState() {
     super.initState();
+    for (final layer in _layers) { _players[layer.name] = AudioPlayer(); }
     _preparePadAudio();
   }
 
   @override
   void dispose() {
-    _padPlayer.dispose();
+    for (final player in _players.values) { player.dispose(); }
     super.dispose();
   }
 
@@ -110,13 +111,15 @@ class _MixerScreenState extends State<MixerScreen> {
     setState(() => _audioLoading = true);
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/worship_loop_test_pad.wav');
-      if (!await file.exists()) {
-        await file.writeAsBytes(_createTestPadWav(), flush: true);
+      for (var i = 0; i < _layers.length; i++) {
+        final layer = _layers[i];
+        final file = File('${directory.path}/worship_loop_${i + 1}.wav');
+        await file.writeAsBytes(_createLayerWav(i), flush: true);
+        final player = _players[layer.name]!;
+        await player.setFilePath(file.path);
+        await player.setLoopMode(LoopMode.one);
+        await player.setVolume(_effectiveVolume(layer));
       }
-      await _padPlayer.setFilePath(file.path);
-      await _padPlayer.setLoopMode(LoopMode.one);
-      await _padPlayer.setVolume(_layers.first.volume * _padBusVolume * _masterVolume);
       if (!mounted) return;
       setState(() {
         _audioReady = true;
@@ -132,20 +135,21 @@ class _MixerScreenState extends State<MixerScreen> {
     }
   }
 
-  Uint8List _createTestPadWav() {
+  double _effectiveVolume(AudioLayer layer) =>
+      layer.volume * (layer.kind == LayerKind.pad ? _padBusVolume : _percussionBusVolume) * _masterVolume;
+
+  Uint8List _createLayerWav(int layerIndex) {
+    final isPad = layerIndex < 3;
+    final seconds = isPad ? 4.0 : 240.0 / _bpm;
     const sampleRate = 44100;
-    const seconds = 4;
     const channels = 2;
     const bitsPerSample = 16;
-    const frameCount = sampleRate * seconds;
-    const dataSize = frameCount * channels * (bitsPerSample ~/ 8);
+    final frameCount = (sampleRate * seconds).round();
+    final dataSize = frameCount * channels * (bitsPerSample ~/ 8);
     final bytes = ByteData(44 + dataSize);
     void writeText(int offset, String value) {
-      for (var i = 0; i < value.length; i++) {
-        bytes.setUint8(offset + i, value.codeUnitAt(i));
-      }
+      for (var i = 0; i < value.length; i++) { bytes.setUint8(offset + i, value.codeUnitAt(i)); }
     }
-
     writeText(0, 'RIFF');
     bytes.setUint32(4, 36 + dataSize, Endian.little);
     writeText(8, 'WAVE');
@@ -160,15 +164,37 @@ class _MixerScreenState extends State<MixerScreen> {
     writeText(36, 'data');
     bytes.setUint32(40, dataSize, Endian.little);
 
-    const frequencies = [110.0, 165.0, 220.0, 330.0];
+    final keyRoot = _availableKeys.indexOf(_globalKey) % 12;
+    final rootHz = 65.406 * math.pow(2, keyRoot / 12);
+    final padNotes = [rootHz, rootHz * 1.5, rootHz * 2.0, rootHz * 2.5];
+    final random = math.Random(100 + layerIndex);
+    final beatSeconds = 60.0 / _bpm;
     for (var frame = 0; frame < frameCount; frame++) {
       final time = frame / sampleRate;
-      var sample = 0.0;
-      for (var i = 0; i < frequencies.length; i++) {
-        final slowMotion = 1.0 + 0.025 * math.sin(2 * math.pi * time / seconds + i);
-        sample += math.sin(2 * math.pi * frequencies[i] * time) * slowMotion;
+      double sample = 0;
+      if (isPad) {
+        final notes = layerIndex == 0 ? padNotes : layerIndex == 1
+            ? [padNotes[1], padNotes[2], padNotes[3]]
+            : [padNotes[0] / 2, padNotes[2], padNotes[3] * 1.5];
+        for (var n = 0; n < notes.length; n++) {
+          final shimmer = 1 + 0.018 * math.sin(2 * math.pi * time / 5 + n);
+          sample += math.sin(2 * math.pi * notes[n] * time) * shimmer;
+        }
+        sample = sample / notes.length * 0.23;
+      } else {
+        final beatPosition = time % beatSeconds;
+        final beat = (time / beatSeconds).floor() % 4;
+        if (layerIndex == 3) {
+          sample = beatPosition < 0.12 ? math.sin(2 * math.pi * 85 * beatPosition) * math.exp(-beatPosition * 24) : 0;
+        } else if (layerIndex == 4) {
+          sample = (beatPosition < 0.055 ? (random.nextDouble() * 2 - 1) * math.exp(-beatPosition * 55) : 0) * (beat.isEven ? 0.55 : 0.8);
+        } else {
+          final hit = beatPosition < 0.08 && (beat == 0 || beat == 2);
+          sample = hit ? (random.nextDouble() * 2 - 1) * math.exp(-beatPosition * 40) : 0;
+        }
+        sample *= 0.65;
       }
-      final value = (sample / frequencies.length * 6500).round().clamp(-32768, 32767).toInt();
+      final value = (sample * 12000).round().clamp(-32768, 32767).toInt();
       final offset = 44 + frame * 4;
       bytes.setInt16(offset, value, Endian.little);
       bytes.setInt16(offset + 2, value, Endian.little);
@@ -177,38 +203,41 @@ class _MixerScreenState extends State<MixerScreen> {
   }
 
   Future<void> _toggleLayer(AudioLayer layer) async {
-    if (layer != _layers.first) {
-      _showNotice('The first pad is connected to real audio in this prototype. Other layers will be connected in the next stages.');
-      return;
-    }
     if (!_audioReady) {
-      _showNotice(_audioError ?? 'Preparing the test pad sound. Please try again in a moment.');
+      _showNotice(_audioError ?? 'Preparing audio. Please try again in a moment.');
       return;
     }
+    final player = _players[layer.name]!;
     try {
-      if (_padPlayer.playing) {
-        await _padPlayer.pause();
-        await _padPlayer.seek(Duration.zero);
+      if (player.playing) {
+        await player.pause();
+        await player.seek(Duration.zero);
         if (mounted) setState(() => layer.isPlaying = false);
       } else {
-        await _padPlayer.setVolume(layer.volume * _padBusVolume * _masterVolume);
-        await _padPlayer.seek(Duration.zero);
-        _padPlayer.play();
+        await player.setVolume(_effectiveVolume(layer));
+        await player.seek(Duration.zero);
+        player.play();
         if (mounted) setState(() => layer.isPlaying = true);
       }
     } catch (error) {
-      _showNotice('Could not play the test pad: $error');
+      _showNotice('Could not play ${layer.name}: $error');
     }
   }
 
-  Future<void> _updatePadVolume(double value) async {
-    setState(() => _layers.first.volume = value);
-    if (_audioReady) await _padPlayer.setVolume(value * _padBusVolume * _masterVolume);
+  Future<void> _updateLayerVolume(AudioLayer layer, double value) async {
+    setState(() => layer.volume = value);
+    if (_audioReady) await _players[layer.name]!.setVolume(_effectiveVolume(layer));
   }
+
+  Future<void> _updatePadVolume(double value) => _updateLayerVolume(_layers.first, value);
 
   Future<void> _updateMasterVolume(double value) async {
     setState(() => _masterVolume = value);
-    if (_audioReady) await _padPlayer.setVolume(_layers.first.volume * _padBusVolume * value);
+    if (_audioReady) {
+      for (final layer in _layers) {
+        await _players[layer.name]!.setVolume(_effectiveVolume(layer));
+      }
+    }
   }
 
   void _tapTempo() {
@@ -296,7 +325,7 @@ class _MixerScreenState extends State<MixerScreen> {
                 const SizedBox(height: 18),
                 OutlinedButton.icon(
                   onPressed: () => _showNotice(
-                    'Audio playback is not connected yet. This preview lets us review the mixer layout and controls before implementing the audio engine.',
+                    'Audio is available in the Android app prototype. The web preview remains visual-only.',
                   ),
                   icon: const Icon(Icons.info_outline_rounded),
                   label: const Text('What works in this preview?'),
@@ -452,7 +481,7 @@ class _MixerScreenState extends State<MixerScreen> {
           )),
           Expanded(child: RotatedBox(quarterTurns: 3, child: SliderTheme(
             data: SliderTheme.of(context).copyWith(trackHeight: 3, thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5), activeTrackColor: accent, inactiveTrackColor: accent.withValues(alpha: .22), thumbColor: accent, overlayShape: SliderComponentShape.noOverlay),
-            child: Slider(value: layer.volume, onChanged: layer == _layers.first ? _updatePadVolume : (v) => setState(() => layer.volume = v)),
+            child: Slider(value: layer.volume, onChanged: (v) => _updateLayerVolume(layer, v)),
           ))),
           Text('${(layer.volume * 100).round()}%', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: accent)),
         ],
@@ -488,7 +517,7 @@ class _MixerScreenState extends State<MixerScreen> {
         _percussionBusVolume = value;
       }
     });
-    _updateMasterVolume(_masterVolume);
+    if (_audioReady) { for (final layer in _layers) { _players[layer.name]!.setVolume(_effectiveVolume(layer)); } }
   }
 
   // ignore: unused_element
@@ -576,7 +605,7 @@ class _MixerScreenState extends State<MixerScreen> {
                 constraints: const BoxConstraints.tightFor(width: 31, height: 31),
                 padding: EdgeInsets.zero,
                 tooltip: layer.isPlaying ? 'Stop preview state' : 'Start preview state',
-                onPressed: () => setState(() => layer.isPlaying = !layer.isPlaying),
+                onPressed: () => _toggleLayer(layer),
                 style: IconButton.styleFrom(
                   foregroundColor: layer.isPlaying ? const Color(0xFF071018) : accent,
                   backgroundColor: layer.isPlaying ? accent : const Color(0xFF202B3B),
@@ -593,7 +622,7 @@ class _MixerScreenState extends State<MixerScreen> {
                   height: 24,
                   child: Slider(
                     value: layer.volume,
-                    onChanged: layer == _layers.first ? _updatePadVolume : (value) => setState(() => layer.volume = value),
+                    onChanged: (value) => _updateLayerVolume(layer, value),
                   ),
                 ),
               ),
@@ -778,7 +807,7 @@ class _MixerScreenState extends State<MixerScreen> {
   }
 
   Widget _audioStatus() {
-    final message = _audioError ?? (_audioLoading ? 'Preparing real pad audio…' : _audioReady ? 'Audio ready • Pad 1 is connected to real playback' : 'Audio is not ready yet');
+    final message = _audioError ?? (_audioLoading ? 'Preparing real pad audio…' : _audioReady ? 'Audio ready • all six layers connected' : 'Audio is not ready yet');
     final color = _audioError != null ? const Color(0xFFFF8A80) : _audioReady ? const Color(0xFF73D6C0) : const Color(0xFFFFC66D);
     return Card(child: Padding(padding: const EdgeInsets.all(12), child: Row(children: [Icon(_audioReady ? Icons.graphic_eq_rounded : Icons.info_outline_rounded, color: color), const SizedBox(width: 9), Expanded(child: Text(message, style: TextStyle(fontSize: 11, color: color))) ])));
   }
@@ -798,7 +827,7 @@ class _MixerScreenState extends State<MixerScreen> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'INTERACTIVE UI PREVIEW\nControls are for layout testing. Audio playback is not connected yet.',
+              'AUDIO PROTOTYPE\nAll six layers now have generated playback. Sound design and tempo-transition refinements are next.',
               style: TextStyle(fontSize: 12, height: 1.5, color: Color(0xFFD3E4FF)),
             ),
           ),
@@ -994,7 +1023,7 @@ class _MixerScreenState extends State<MixerScreen> {
                 Expanded(
                   child: Slider(
                     value: layer.volume,
-                    onChanged: (value) => setState(() => layer.volume = value),
+                    onChanged: (value) => _updateLayerVolume(layer, value),
                   ),
                 ),
                 SizedBox(
