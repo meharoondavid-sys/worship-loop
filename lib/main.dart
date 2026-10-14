@@ -436,14 +436,14 @@ class _MixerScreenState extends State<MixerScreen> {
   Widget _verticalLayerFader(AudioLayer layer, Color accent) {
     return Container(
       decoration: BoxDecoration(color: const Color(0xFF111A27), border: Border.all(color: accent.withValues(alpha: .4)), borderRadius: BorderRadius.circular(7)),
-      padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+      padding: const EdgeInsets.fromLTRB(2, 1, 2, 1),
       child: Column(
         children: [
-          Text(layer.name.replaceFirst('Percussion ', 'Perc '), textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(layer.name.replaceFirst('Percussion ', 'Perc '), textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, height: 1, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 1),
-          Container(width: 19, height: 19, decoration: BoxDecoration(color: accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(5)), child: Icon(layer.kind == LayerKind.pad ? Icons.graphic_eq_rounded : Icons.waves_rounded, size: 12, color: accent)),
+          Container(width: 17, height: 17, decoration: BoxDecoration(color: accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(5)), child: Icon(layer.kind == LayerKind.pad ? Icons.graphic_eq_rounded : Icons.waves_rounded, size: 11, color: accent)),
           const SizedBox(height: 1),
-          SizedBox(height: 18, width: 28, child: IconButton(
+          SizedBox(height: 16, width: 26, child: IconButton(
             padding: EdgeInsets.zero,
             visualDensity: VisualDensity.compact,
             onPressed: () => _toggleLayer(layer),
