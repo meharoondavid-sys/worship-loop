@@ -339,40 +339,24 @@ class _MixerScreenState extends State<MixerScreen> {
   Widget _landscapeLayout(List<AudioLayer> pads, List<AudioLayer> percussion) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(9, 4, 9, 8),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(flex: 10, child: _landscapeFaderGroup('PADS', 'SUSTAINING', pads, const Color(0xFF60A5FA), const Color(0xFF3B82F6), true)),
-                const SizedBox(width: 7),
-                Expanded(flex: 10, child: _landscapeFaderGroup('PERCUSSION', 'TEMPO-SYNCED', percussion, const Color(0xFF2DD4BF), const Color(0xFF0F766E), false)),
-                const SizedBox(width: 7),
-                SizedBox(width: 54, child: _landscapeMasterFader()),
-              ],
+            child: _landscapeFaderGroup(
+              'PADS', 'SUSTAINING', pads,
+              const Color(0xFF60A5FA), const Color(0xFF3B82F6), true,
             ),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(child: _compactTempoPanel()),
-              const SizedBox(width: 6),
-              Expanded(child: _compactTransitionPanel()),
-              const SizedBox(width: 6),
-              IconButton(
-                tooltip: 'Global key and audio status',
-                onPressed: _showSettings,
-                icon: const Icon(Icons.tune_rounded),
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF17263A),
-                  foregroundColor: const Color(0xFF82B5FF),
-                  side: const BorderSide(color: Color(0xFF344B66)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-                ),
-              ),
-            ],
+          const SizedBox(width: 7),
+          Expanded(
+            child: _landscapeFaderGroup(
+              'PERCUSSION', 'TEMPO-SYNCED', percussion,
+              const Color(0xFF2DD4BF), const Color(0xFF0F766E), false,
+            ),
           ),
+          const SizedBox(width: 7),
+          SizedBox(width: 58, child: _landscapeMasterFader()),
         ],
       ),
     );
@@ -399,6 +383,10 @@ class _MixerScreenState extends State<MixerScreen> {
                 ],
               ),
               const SizedBox(height: 8),
+              _compactTempoPanel(),
+              const SizedBox(height: 8),
+              _compactTransitionPanel(),
+              const SizedBox(height: 8),
               _compactGlobalKeyPanel(),
               const SizedBox(height: 8),
               _audioStatus(),
@@ -414,40 +402,75 @@ class _MixerScreenState extends State<MixerScreen> {
   Widget _landscapeFaderGroup(String title, String subtitle, List<AudioLayer> layers, Color busColor, Color accent, bool isPad) {
     final busVolume = isPad ? _padBusVolume : _percussionBusVolume;
     return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(color: const Color(0xFF0D131D), border: Border.all(color: const Color(0xFF26354A)), borderRadius: BorderRadius.circular(9)),
+      padding: const EdgeInsets.all(7),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D131D),
+        border: Border.all(color: const Color(0xFF26354A)),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         children: [
           Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1, color: accent)),
-              Text(subtitle, style: const TextStyle(fontSize: 8, color: Color(0xFF93A2B7))),
+              Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1, color: accent)),
+              Text(subtitle, style: const TextStyle(fontSize: 9, color: Color(0xFF93A2B7))),
             ])),
-            Text('3/3', style: const TextStyle(fontSize: 9, color: Color(0xFF93A2B7))),
+            const Text('3/3', style: TextStyle(fontSize: 10, color: Color(0xFF93A2B7))),
           ]),
-          const SizedBox(height: 5),
+          const SizedBox(height: 7),
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (var i = 0; i < layers.length; i++)
-                  Expanded(child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
-                    child: _verticalLayerFader(layers[i], _layerColor(isPad, i)),
-                  )),
-                const SizedBox(width: 38),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: _verticalLayerFader(layers[i], _layerColor(isPad, i)),
+                    ),
+                  ),
+                const SizedBox(width: 5),
+                Container(
+                  width: 42,
+                  padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111923),
+                    border: Border.all(color: busColor.withValues(alpha: .55)),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(isPad ? 'PAD BUS' : 'PERC BUS', textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 8, height: 1.1, fontWeight: FontWeight.w900, color: busColor)),
+                      const SizedBox(height: 7),
+                      Text('${(busVolume * 100).round()}%', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: busColor)),
+                      Expanded(
+                        child: RotatedBox(
+                          quarterTurns: 3,
+                          child: SizedBox(
+                            width: 125,
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                trackHeight: 4,
+                                activeTrackColor: busColor,
+                                inactiveTrackColor: busColor.withValues(alpha: .22),
+                                thumbColor: busColor,
+                                overlayShape: SliderComponentShape.noOverlay,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                              ),
+                              child: Slider(
+                                value: busVolume,
+                                onChanged: (value) => _updateBusVolume(isPad, value),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-          const SizedBox(height: 3),
-          Container(
-            height: 27,
-            decoration: BoxDecoration(color: const Color(0xFF101722), border: Border.all(color: busColor.withValues(alpha: .65)), borderRadius: BorderRadius.circular(6)),
-            child: Row(children: [
-              const SizedBox(width: 4),
-              Expanded(child: Text(isPad ? 'PAD BUS' : 'PERC BUS', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: busColor))),
-              SizedBox(width: 70, child: SliderTheme(data: SliderTheme.of(context).copyWith(activeTrackColor: busColor, thumbColor: busColor, trackHeight: 2), child: Slider(value: busVolume, onChanged: (v) => _updateBusVolume(isPad, v)))),
-              SizedBox(width: 25, child: Text('${(busVolume * 100).round()}%', style: TextStyle(fontSize: 8, color: busColor))),
-            ]),
           ),
         ],
       ),
