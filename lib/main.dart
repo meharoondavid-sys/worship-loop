@@ -229,8 +229,6 @@ class _MixerScreenState extends State<MixerScreen> {
     if (_audioReady) await _players[layer.name]!.setVolume(_effectiveVolume(layer));
   }
 
-  Future<void> _updatePadVolume(double value) => _updateLayerVolume(_layers.first, value);
-
   Future<void> _updateMasterVolume(double value) async {
     setState(() => _masterVolume = value);
     if (_audioReady) {
