@@ -36,7 +36,7 @@ void main() {
 
     expect(find.text('Worship Loop'), findsOneWidget);
     expect(find.text('TAP TEMPO'), findsOneWidget);
-    expect(find.text('GLOBAL KEY'), findsOneWidget);
+    expect(find.text('PADS'), findsOneWidget);
     expect(find.text('Pad 1'), findsOneWidget);
     expect(find.text('Pad 3'), findsOneWidget);
     expect(find.text('Percussion 1'), findsOneWidget);
