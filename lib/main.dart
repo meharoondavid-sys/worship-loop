@@ -436,13 +436,13 @@ class _MixerScreenState extends State<MixerScreen> {
   Widget _verticalLayerFader(AudioLayer layer, Color accent) {
     return Container(
       decoration: BoxDecoration(color: const Color(0xFF111A27), border: Border.all(color: accent.withValues(alpha: .4)), borderRadius: BorderRadius.circular(7)),
-      padding: const EdgeInsets.fromLTRB(2, 1, 2, 1),
+      padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       child: Column(
         children: [
           Text(layer.name.replaceFirst('Percussion ', 'Perc '), textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, height: 1, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 1),
-          Container(width: 17, height: 17, decoration: BoxDecoration(color: accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(5)), child: Icon(layer.kind == LayerKind.pad ? Icons.graphic_eq_rounded : Icons.waves_rounded, size: 11, color: accent)),
-          const SizedBox(height: 1),
+          const SizedBox(height: 2),
+          Container(width: 18, height: 18, decoration: BoxDecoration(color: accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(5)), child: Icon(layer.kind == LayerKind.pad ? Icons.graphic_eq_rounded : Icons.waves_rounded, size: 11, color: accent)),
+          const SizedBox(height: 2),
           SizedBox(height: 16, width: 26, child: IconButton(
             padding: EdgeInsets.zero,
             visualDensity: VisualDensity.compact,
@@ -451,7 +451,7 @@ class _MixerScreenState extends State<MixerScreen> {
             style: IconButton.styleFrom(backgroundColor: layer.isPlaying ? accent : const Color(0xFF26364A), foregroundColor: layer.isPlaying ? const Color(0xFF07111D) : accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
           )),
           Expanded(child: RotatedBox(quarterTurns: 3, child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(trackHeight: 3, activeTrackColor: accent, inactiveTrackColor: accent.withValues(alpha: .22), thumbColor: accent, overlayShape: SliderComponentShape.noOverlay),
+            data: SliderTheme.of(context).copyWith(trackHeight: 3, thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5), activeTrackColor: accent, inactiveTrackColor: accent.withValues(alpha: .22), thumbColor: accent, overlayShape: SliderComponentShape.noOverlay),
             child: Slider(value: layer.volume, onChanged: layer == _layers.first ? _updatePadVolume : (v) => setState(() => layer.volume = v)),
           ))),
           Text('${(layer.volume * 100).round()}%', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: accent)),
