@@ -311,66 +311,184 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Widget _landscapeLayout(List<AudioLayer> pads, List<AudioLayer> percussion) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      padding: const EdgeInsets.fromLTRB(9, 4, 9, 8),
+      child: Column(
         children: [
           Expanded(
-            flex: 10,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _compactTempoPanel(),
-                  const SizedBox(height: 8),
-                  _compactGlobalKeyPanel(),
-                  const SizedBox(height: 6),
-                  TextButton.icon(
-                    onPressed: () => _showNotice(
-                      'This is an interactive UI preview. Audio playback and real pitch shifting are not connected yet.',
-                    ),
-                    icon: const Icon(Icons.info_outline_rounded, size: 15),
-                    label: const Text('Preview info', style: TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(flex: 10, child: _landscapeFaderGroup('PADS', 'SUSTAINING', pads, const Color(0xFF60A5FA), const Color(0xFF3B82F6), true)),
+                const SizedBox(width: 7),
+                Expanded(flex: 10, child: _landscapeFaderGroup('PERCUSSION', 'TEMPO-SYNCED', percussion, const Color(0xFF2DD4BF), const Color(0xFF0F766E), false)),
+                const SizedBox(width: 7),
+                SizedBox(width: 54, child: _landscapeMasterFader()),
+              ],
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            flex: 11,
-            child: _landscapeLayerColumn(
-              title: 'PADS',
-              subtitle: 'SUSTAINING',
-              icon: Icons.graphic_eq_rounded,
-              accent: const Color(0xFF82B5FF),
-              layers: pads,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            flex: 11,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _landscapeLayerColumn(
-                    title: 'PERCUSSION',
-                    subtitle: 'TEMPO-SYNCED',
-                    icon: Icons.waves_rounded,
-                    accent: const Color(0xFF73D6C0),
-                    layers: percussion,
-                    shrinkWrap: true,
-                  ),
-                  const SizedBox(height: 8),
-                  _compactTransitionPanel(),
-                  const SizedBox(height: 8),
-                  _compactMasterPanel(),
-                ],
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(child: _compactTempoPanel()),
+              const SizedBox(width: 6),
+              Expanded(child: _compactTransitionPanel()),
+              const SizedBox(width: 6),
+              IconButton(
+                tooltip: 'Global key and audio status',
+                onPressed: _showSettings,
+                icon: const Icon(Icons.tune_rounded),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF17263A),
+                  foregroundColor: const Color(0xFF82B5FF),
+                  side: const BorderSide(color: Color(0xFF344B66)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  void _showSettings() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF0A1019),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const Expanded(child: Text('MIXER SETTINGS', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.2))),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _compactGlobalKeyPanel(),
+              const SizedBox(height: 8),
+              _audioStatus(),
+              const SizedBox(height: 8),
+              _prototypeNotice(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _landscapeFaderGroup(String title, String subtitle, List<AudioLayer> layers, Color busColor, Color accent, bool isPad) {
+    final busVolume = isPad ? _padBusVolume : _percussionBusVolume;
+    return Container(
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(color: const Color(0xFF0D131D), border: Border.all(color: const Color(0xFF26354A)), borderRadius: BorderRadius.circular(9)),
+      child: Column(
+        children: [
+          Row(children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1, color: accent)),
+              Text(subtitle, style: const TextStyle(fontSize: 8, color: Color(0xFF93A2B7))),
+            ])),
+            Text('3/3', style: const TextStyle(fontSize: 9, color: Color(0xFF93A2B7))),
+          ]),
+          const SizedBox(height: 5),
+          Expanded(
+            child: Row(
+              children: [
+                for (var i = 0; i < layers.length; i++)
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: _verticalLayerFader(layers[i], _layerColor(isPad, i)),
+                  )),
+                const SizedBox(width: 38),
+              ],
+            ),
+          ),
+          const SizedBox(height: 3),
+          Container(
+            height: 27,
+            decoration: BoxDecoration(color: const Color(0xFF101722), border: Border.all(color: busColor.withValues(alpha: .65)), borderRadius: BorderRadius.circular(6)),
+            child: Row(children: [
+              const SizedBox(width: 4),
+              Expanded(child: Text(isPad ? 'PAD BUS' : 'PERC BUS', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: busColor))),
+              SizedBox(width: 70, child: SliderTheme(data: SliderTheme.of(context).copyWith(activeTrackColor: busColor, thumbColor: busColor, trackHeight: 2), child: Slider(value: busVolume, onChanged: (v) => _updateBusVolume(isPad, v)))),
+              SizedBox(width: 25, child: Text('${(busVolume * 100).round()}%', style: TextStyle(fontSize: 8, color: busColor))),
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _layerColor(bool isPad, int index) {
+    const padColors = [Color(0xFF60A5FA), Color(0xFFA78BFA), Color(0xFF22D3EE)];
+    const percColors = [Color(0xFF2DD4BF), Color(0xFFFBBF24), Color(0xFFFB7185)];
+    return isPad ? padColors[index] : percColors[index];
+  }
+
+  Widget _verticalLayerFader(AudioLayer layer, Color accent) {
+    return Container(
+      decoration: BoxDecoration(color: const Color(0xFF111A27), border: Border.all(color: accent.withValues(alpha: .4)), borderRadius: BorderRadius.circular(7)),
+      padding: const EdgeInsets.fromLTRB(2, 5, 2, 4),
+      child: Column(
+        children: [
+          Text(layer.name.replaceFirst('Percussion ', 'Perc '), textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800), maxLines: 2),
+          const SizedBox(height: 3),
+          Container(width: 23, height: 23, decoration: BoxDecoration(color: accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(6)), child: Icon(layer.kind == LayerKind.pad ? Icons.graphic_eq_rounded : Icons.waves_rounded, size: 14, color: accent)),
+          const SizedBox(height: 3),
+          SizedBox(height: 22, width: 30, child: IconButton(
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _toggleLayer(layer),
+            icon: Icon(layer.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded, size: 17),
+            style: IconButton.styleFrom(backgroundColor: layer.isPlaying ? accent : const Color(0xFF26364A), foregroundColor: layer.isPlaying ? const Color(0xFF07111D) : accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+          )),
+          Expanded(child: RotatedBox(quarterTurns: 3, child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(trackHeight: 3, activeTrackColor: accent, inactiveTrackColor: accent.withValues(alpha: .22), thumbColor: accent, overlayShape: SliderComponentShape.noOverlay),
+            child: Slider(value: layer.volume, onChanged: layer == _layers.first ? _updatePadVolume : (v) => setState(() => layer.volume = v)),
+          ))),
+          Text('${(layer.volume * 100).round()}%', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: accent)),
+        ],
+      ),
+    );
+  }
+
+  Widget _landscapeMasterFader() {
+    return Container(
+      decoration: BoxDecoration(color: const Color(0xFF111923), border: Border.all(color: const Color(0xFFEAB30888)), borderRadius: BorderRadius.circular(9)),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 3),
+      child: Column(children: [
+        const Text('MASTER', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Color(0xFFFBBF24))),
+        const SizedBox(height: 5),
+        Text('${(_masterVolume * 100).round()}%', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFFFBBF24))),
+        Expanded(child: RotatedBox(quarterTurns: 3, child: SliderTheme(
+          data: SliderTheme.of(context).copyWith(activeTrackColor: const Color(0xFFFBBF24), thumbColor: const Color(0xFFFBBF24), trackHeight: 3),
+          child: Slider(value: _masterVolume, onChanged: _updateMasterVolume),
+        ))),
+        const Icon(Icons.tune_rounded, size: 14, color: Color(0xFFFBBF24)),
+      ]),
+    );
+  }
+
+  double _padBusVolume = 1.0;
+  double _percussionBusVolume = 1.0;
+
+  void _updateBusVolume(bool isPad, double value) {
+    setState(() {
+      if (isPad) {
+        _padBusVolume = value;
+      } else {
+        _percussionBusVolume = value;
+      }
+    });
+    _updateMasterVolume(_masterVolume);
   }
 
   Widget _landscapeLayerColumn({
