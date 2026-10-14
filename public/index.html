@@ -387,6 +387,42 @@ select,.segment button,.key-btn,.round,.window-close{background:#777b80;border-c
 .layer .volume span.pct,.bus-strip output,.master-strip .master-readout{color:#f5f5f5!important}
 footer{color:#e0e2e4}
 
+
+/* Refined matte graphite finish; fader fill follows the knob and deepens as it rises */
+:root{--bg:#555a60;--panel:#666c72;--line:#454b51;--muted:#d0d4d8}
+body{background:linear-gradient(145deg,#555a60,#4b5056);color:#f3f4f5}
+header{background:rgba(79,84,90,.96);border-bottom-color:#3f454b}
+.notice{background:#62686e;border-color:#454b51;color:#e9ecef}
+.panel,.layer{background:#666c72;border-color:#50565d;box-shadow:0 5px 14px #25292d20}
+.tempo,.control-launch,.control-window{background:#62686e;border-color:#4b5158}
+.channel-group{background:#50565c;border-color:#41474d;box-shadow:inset 0 1px 0 #ffffff08}
+.layer,.layer.perc{background:linear-gradient(155deg,#6c7278,#62686e);border-color:var(--channel,#89939c);box-shadow:inset 0 1px 0 #ffffff0b,0 2px 5px #292d3120}
+.channel-group:first-child .layer:nth-child(1){--channel:#82a9d0}
+.channel-group:first-child .layer:nth-child(2){--channel:#a899ca}
+.channel-group:first-child .layer:nth-child(3){--channel:#79b9c5}
+.channel-group:nth-child(2) .layer:nth-child(1){--channel:#76b9a9}
+.channel-group:nth-child(2) .layer:nth-child(2){--channel:#c2a66c}
+.channel-group:nth-child(2) .layer:nth-child(3){--channel:#c18b98}
+.layer-icon,.perc .layer-icon{background:#555b61;color:#e4e7ea}
+.play,.perc .play{background:#555b61;color:#e7eaed;border:1px solid #777e85}
+.play.active,.perc .play.active{background:#d4d9dd;color:#343a40;border-color:#e0e4e7}
+.master-strip,.bus-strip{background:linear-gradient(155deg,#60666c,#555b61);border-color:#454b51}
+select,.segment button,.key-btn,.round,.window-close{background:#555b61;border-color:#454b51;color:#f0f2f4}
+.segment button.selected,.key-btn.selected{background:#454b51;border-color:#aeb5bb;color:#fff;box-shadow:inset 0 1px 2px #0002}
+.tap{background:#c2c8cd;color:#30363b;box-shadow:0 2px 5px #34393d30}
+.layer .volume input,.bus-strip input,.master-strip input{--level:72%;--fader:#7d858d;accent-color:var(--fader)}
+/* Explicit track fill: bottom-to-top for vertical faders, with darker colour at higher levels */
+.layer .volume input::-webkit-slider-runnable-track,
+.bus-strip input::-webkit-slider-runnable-track,
+.master-strip input::-webkit-slider-runnable-track{background:linear-gradient(to top,var(--fader) 0%,var(--fader) var(--level),#b4bbc1 var(--level),#b4bbc1 100%);border:1px solid #454b51;border-radius:4px}
+.layer .volume input::-moz-range-track,
+.bus-strip input::-moz-range-track,
+.master-strip input::-moz-range-track{background:linear-gradient(to top,var(--fader) 0%,var(--fader) var(--level),#b4bbc1 var(--level),#b4bbc1 100%);border:1px solid #454b51;border-radius:4px}
+.layer .volume input::-webkit-slider-thumb,.bus-strip input::-webkit-slider-thumb,.master-strip input::-webkit-slider-thumb{background:linear-gradient(180deg,#e0e4e7,#a5adb4);border:1px solid #42484e;box-shadow:0 2px 4px #24282c70,inset 0 1px #f8f9fa}
+.layer .volume input::-moz-range-thumb,.bus-strip input::-moz-range-thumb,.master-strip input::-moz-range-thumb{background:linear-gradient(180deg,#e0e4e7,#a5adb4);border:1px solid #42484e;box-shadow:0 2px 4px #24282c70,inset 0 1px #f8f9fa}
+.layer .volume span.pct,.bus-strip output,.master-strip .master-readout{color:#f1f3f5!important}
+footer{color:#d0d4d8}
+
 </style></head>
 <body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
