@@ -277,6 +277,11 @@ class _MixerScreenState extends State<MixerScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: 'Mixer settings',
+            onPressed: _showSettings,
+            icon: const Icon(Icons.settings_rounded),
+          ),
+          IconButton(
             tooltip: 'Setlists (coming soon)',
             onPressed: () => _showNotice('Setlists will be added after the audio prototype.'),
             icon: const Icon(Icons.queue_music_rounded),
