@@ -39,8 +39,9 @@ void main() {
     expect(find.text('PADS'), findsOneWidget);
     expect(find.text('Pad 1'), findsOneWidget);
     expect(find.text('Pad 3'), findsOneWidget);
-    expect(find.text('Percussion 1'), findsOneWidget);
-    expect(find.text('Percussion 3'), findsOneWidget);
+    expect(find.text('PERCUSSION'), findsOneWidget);
+    expect(find.text('Perc 1'), findsOneWidget);
+    expect(find.text('Perc 3'), findsOneWidget);
     expect(find.text('TEMPO TRANSITION'), findsOneWidget);
     expect(find.text('MASTER'), findsOneWidget);
   });
