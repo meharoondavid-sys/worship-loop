@@ -388,43 +388,36 @@ select,.segment button,.key-btn,.round,.window-close{background:#777b80;border-c
 footer{color:#e0e2e4}
 
 
-/* Refined matte graphite finish; fader fill follows the knob and deepens as it rises */
-:root{--bg:#555a60;--panel:#666c72;--line:#454b51;--muted:#d0d4d8}
-body{background:linear-gradient(145deg,#555a60,#4b5056);color:#f3f4f5}
-header{background:rgba(79,84,90,.96);border-bottom-color:#3f454b}
-.notice{background:#62686e;border-color:#454b51;color:#e9ecef}
-.panel,.layer{background:#666c72;border-color:#50565d;box-shadow:0 5px 14px #25292d20}
-.tempo,.control-launch,.control-window{background:#62686e;border-color:#4b5158}
-.channel-group{background:#50565c;border-color:#41474d;box-shadow:inset 0 1px 0 #ffffff08}
-.layer,.layer.perc{background:linear-gradient(155deg,#6c7278,#62686e);border-color:var(--channel,#89939c);box-shadow:inset 0 1px 0 #ffffff0b,0 2px 5px #292d3120}
-.channel-group:first-child .layer:nth-child(1){--channel:#82a9d0}
-.channel-group:first-child .layer:nth-child(2){--channel:#a899ca}
-.channel-group:first-child .layer:nth-child(3){--channel:#79b9c5}
-.channel-group:nth-child(2) .layer:nth-child(1){--channel:#76b9a9}
-.channel-group:nth-child(2) .layer:nth-child(2){--channel:#c2a66c}
-.channel-group:nth-child(2) .layer:nth-child(3){--channel:#c18b98}
-.layer-icon,.perc .layer-icon{background:#555b61;color:#e4e7ea}
-.play,.perc .play{background:#555b61;color:#e7eaed;border:1px solid #777e85}
-.play.active,.perc .play.active{background:#d4d9dd;color:#343a40;border-color:#e0e4e7}
-.master-strip,.bus-strip{background:linear-gradient(155deg,#60666c,#555b61);border-color:#454b51}
-select,.segment button,.key-btn,.round,.window-close{background:#555b61;border-color:#454b51;color:#f0f2f4}
-.segment button.selected,.key-btn.selected{background:#454b51;border-color:#aeb5bb;color:#fff;box-shadow:inset 0 1px 2px #0002}
-.tap{background:#c2c8cd;color:#30363b;box-shadow:0 2px 5px #34393d30}
-.layer .volume input,.bus-strip input,.master-strip input{--level:72%;--fader:#7d858d;accent-color:var(--fader)}
-/* Explicit track fill: bottom-to-top for vertical faders, with darker colour at higher levels */
+/* Deeper, more restrained graphite finish — minimal palette-only refinement */
+:root{--bg:#303438;--panel:#3a3f44;--line:#292d31;--muted:#aeb4ba}
+body{background:linear-gradient(145deg,#303438,#282c30);color:#edf0f2}
+header{background:rgba(42,46,50,.97);border-bottom-color:#25292d}
+.notice{background:#393e43;border-color:#292e32;color:#d9dee2}
+.panel,.layer{background:#3b4045;border-color:#2b3034;box-shadow:0 7px 20px #00000030}
+.tempo,.control-launch,.control-window{background:#363b40;border-color:#292e32}
+.channel-group{background:#303539;border-color:#252a2e;box-shadow:inset 0 1px 0 #ffffff05}
+.layer,.layer.perc{background:linear-gradient(155deg,#41464b,#383d42);border-color:var(--channel,#66717a);box-shadow:inset 0 1px 0 #ffffff07,0 3px 8px #00000022}
+.layer-icon,.perc .layer-icon{background:#303539;color:#d9dee2}
+.play,.perc .play{background:#303539;color:#d9dee2;border:1px solid #4a5056}
+.play.active,.perc .play.active{background:#b6bdc3;color:#252a2e;border-color:#cbd0d4}
+.master-strip,.bus-strip{background:linear-gradient(155deg,#383d42,#303539);border-color:#292e32}
+select,.segment button,.key-btn,.round,.window-close{background:#303539;border-color:#292e32;color:#e1e5e8}
+.segment button.selected,.key-btn.selected{background:#4a5056;border-color:#858e96;color:#fff;box-shadow:inset 0 1px 2px #0005}
+.tap{background:#9fa7ae;color:#24292d;box-shadow:0 2px 6px #0004}
+.layer .volume input,.bus-strip input,.master-strip input{--level:72%;--fader:#69727a;accent-color:var(--fader)}
+/* Fill darkens distinctly against the lighter unfilled track */
 .layer .volume input::-webkit-slider-runnable-track,
 .bus-strip input::-webkit-slider-runnable-track,
-.master-strip input::-webkit-slider-runnable-track{background:linear-gradient(to top,var(--fader) 0%,var(--fader) var(--level),#b4bbc1 var(--level),#b4bbc1 100%);border:1px solid #454b51;border-radius:4px}
+.master-strip input::-webkit-slider-runnable-track{background:linear-gradient(to top,#626b73 0%,#626b73 var(--level),#929aa1 var(--level),#929aa1 100%);border:1px solid #252a2e;border-radius:4px}
 .layer .volume input::-moz-range-track,
 .bus-strip input::-moz-range-track,
-.master-strip input::-moz-range-track{background:linear-gradient(to top,var(--fader) 0%,var(--fader) var(--level),#b4bbc1 var(--level),#b4bbc1 100%);border:1px solid #454b51;border-radius:4px}
-.layer .volume input::-webkit-slider-thumb,.bus-strip input::-webkit-slider-thumb,.master-strip input::-webkit-slider-thumb{background:linear-gradient(180deg,#e0e4e7,#a5adb4);border:1px solid #42484e;box-shadow:0 2px 4px #24282c70,inset 0 1px #f8f9fa}
-.layer .volume input::-moz-range-thumb,.bus-strip input::-moz-range-thumb,.master-strip input::-moz-range-thumb{background:linear-gradient(180deg,#e0e4e7,#a5adb4);border:1px solid #42484e;box-shadow:0 2px 4px #24282c70,inset 0 1px #f8f9fa}
-.layer .volume span.pct,.bus-strip output,.master-strip .master-readout{color:#f1f3f5!important}
-footer{color:#d0d4d8}
+.master-strip input::-moz-range-track{background:linear-gradient(to top,#626b73 0%,#626b73 var(--level),#929aa1 var(--level),#929aa1 100%);border:1px solid #252a2e;border-radius:4px}
+.layer .volume input::-webkit-slider-thumb,.bus-strip input::-webkit-slider-thumb,.master-strip input::-webkit-slider-thumb{background:linear-gradient(180deg,#cbd0d4,#858e95);border:1px solid #252a2e;box-shadow:0 2px 5px #0008,inset 0 1px #edf0f2}
+.layer .volume input::-moz-range-thumb,.bus-strip input::-moz-range-thumb,.master-strip input::-moz-range-thumb{background:linear-gradient(180deg,#cbd0d4,#858e95);border:1px solid #252a2e;box-shadow:0 2px 5px #0008,inset 0 1px #edf0f2}
+.layer .volume span.pct,.bus-strip output,.master-strip .master-readout{color:#edf0f2!important}
+footer{color:#aeb4ba}
 
-</style></head>
-<body>
+</style></head><body>
 <header><div class="brand">Worship Loop<small>LIVE MIXER · WEB PREVIEW</small></div><button class="settings-trigger" id="openSettings" aria-label="Open settings">⚙ <span>SETTINGS</span></button></header>
 <div class="notice">ⓘ Controls are interactive for layout testing. Audio playback is not connected yet.</div>
 <main>
