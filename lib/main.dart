@@ -116,7 +116,7 @@ class _MixerScreenState extends State<MixerScreen> {
       }
       await _padPlayer.setFilePath(file.path);
       await _padPlayer.setLoopMode(LoopMode.one);
-      await _padPlayer.setVolume(_layers.first.volume * _masterVolume);
+      await _padPlayer.setVolume(_layers.first.volume * _padBusVolume * _masterVolume);
       if (!mounted) return;
       setState(() {
         _audioReady = true;
@@ -191,7 +191,7 @@ class _MixerScreenState extends State<MixerScreen> {
         await _padPlayer.seek(Duration.zero);
         if (mounted) setState(() => layer.isPlaying = false);
       } else {
-        await _padPlayer.setVolume(layer.volume * _masterVolume);
+        await _padPlayer.setVolume(layer.volume * _padBusVolume * _masterVolume);
         await _padPlayer.seek(Duration.zero);
         _padPlayer.play();
         if (mounted) setState(() => layer.isPlaying = true);
@@ -203,12 +203,12 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Future<void> _updatePadVolume(double value) async {
     setState(() => _layers.first.volume = value);
-    if (_audioReady) await _padPlayer.setVolume(value * _masterVolume);
+    if (_audioReady) await _padPlayer.setVolume(value * _padBusVolume * _masterVolume);
   }
 
   Future<void> _updateMasterVolume(double value) async {
     setState(() => _masterVolume = value);
-    if (_audioReady) await _padPlayer.setVolume(_layers.first.volume * value);
+    if (_audioReady) await _padPlayer.setVolume(_layers.first.volume * _padBusVolume * value);
   }
 
   void _tapTempo() {
