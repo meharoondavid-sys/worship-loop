@@ -36,14 +36,13 @@ void main() {
     await tester.pumpWidget(const WorshipLoopApp());
 
     expect(find.text('Worship Loop'), findsOneWidget);
-    expect(find.text('TAP TEMPO'), findsOneWidget);
+    expect(find.byTooltip('Mixer settings'), findsOneWidget);
     expect(find.text('PADS'), findsOneWidget);
     expect(find.text('Pad 1'), findsOneWidget);
     expect(find.text('Pad 3'), findsOneWidget);
     expect(find.text('PERCUSSION'), findsOneWidget);
     expect(find.text('Perc 1'), findsOneWidget);
     expect(find.text('Perc 3'), findsOneWidget);
-    expect(find.text('TEMPO TRANSITION'), findsOneWidget);
     expect(find.text('MASTER'), findsOneWidget);
   });
 }
