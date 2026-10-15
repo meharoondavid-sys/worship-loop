@@ -94,8 +94,8 @@ class MixerScreen extends StatefulWidget {
 }
 
 class _MixerScreenState extends State<MixerScreen> {
-  late final AudioEngine _engine;
-  late final AudioController _controller;
+  AudioEngine? _engine;
+  AudioController? _controller;
   final CustomAudioLibrary _audioLibrary = CustomAudioLibrary();
 
   static const _amber = Color(0xFFFFBF47);
@@ -120,24 +120,44 @@ class _MixerScreenState extends State<MixerScreen> {
   @override
   void initState() {
     super.initState();
-    _engine = AudioEngine();
-    _controller = AudioController(
-      _engine,
-      sourcePercussionBpm: 100,
-    );
-    unawaited(_restoreCustomAudio());
+    // Render the mixer before touching native audio plugins. Plugin startup
+    // must not block the first visible frame on Android.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_initializeAudio());
+    });
+  }
+
+  Future<void> _initializeAudio() async {
+    try {
+      final engine = AudioEngine();
+      final controller = AudioController(engine, sourcePercussionBpm: 100);
+      if (!mounted) {
+        await controller.dispose();
+        await engine.dispose();
+        return;
+      }
+      _engine = engine;
+      _controller = controller;
+      await _restoreCustomAudio();
+    } catch (error) {
+      _showMessage('Audio startup issue: $error');
+    }
   }
 
   @override
   void dispose() {
-    unawaited(_controller.dispose());
-    unawaited(_engine.dispose());
+    final controller = _controller;
+    final engine = _engine;
+    if (controller != null) unawaited(controller.dispose());
+    if (engine != null) unawaited(engine.dispose());
     super.dispose();
   }
 
   Future<void> _restoreCustomAudio() async {
     try {
-      await _audioLibrary.restore(_engine);
+      final engine = _engine;
+      if (engine == null) return;
+      await _audioLibrary.restore(engine);
       if (mounted) setState(() {});
     } catch (error) {
       _showMessage('Some saved audio could not be restored: $error');
@@ -146,7 +166,12 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Future<void> _importAudio(AudioTrack track) async {
     try {
-      final path = await _audioLibrary.importForTrack(_engine, track);
+      final engine = _engine;
+      if (engine == null) {
+        _showMessage('Audio is still starting. Please try again in a moment.');
+        return;
+      }
+      final path = await _audioLibrary.importForTrack(engine, track);
       if (path == null) return;
       if (mounted) {
         setState(() => _playing[track] = false);
@@ -159,12 +184,17 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Future<void> _toggleTrack(AudioTrack track) async {
     if (_busy) return;
+    final engine = _engine;
+    if (engine == null) {
+      _showMessage('Audio is still starting. Please try again in a moment.');
+      return;
+    }
     setState(() => _busy = true);
     try {
       if (_playing[track] == true) {
-        await _engine.pauseTrack(track);
+        await engine.pauseTrack(track);
       } else {
-        await _engine.playTrack(track);
+        await engine.playTrack(track);
       }
       if (mounted) setState(() => _playing[track] = !(_playing[track] ?? false));
     } catch (error) {
@@ -176,7 +206,12 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Future<void> _tapTempo() async {
     try {
-      final bpm = await _controller.tapTempo();
+      final controller = _controller;
+      if (controller == null) {
+        _showMessage('Audio is still starting. Please try again in a moment.');
+        return;
+      }
+      final bpm = await controller.tapTempo();
       if (!mounted) return;
       setState(() => _bpm = bpm ?? _bpm);
       if (bpm != null) _showMessage('Tempo set to ${bpm.round()} BPM');
@@ -187,7 +222,12 @@ class _MixerScreenState extends State<MixerScreen> {
 
   Future<void> _stopAll() async {
     try {
-      await _engine.stopAll();
+      final engine = _engine;
+      if (engine == null) {
+        _showMessage('Audio is still starting. Please try again in a moment.');
+        return;
+      }
+      await engine.stopAll();
       if (mounted) {
         setState(() {
           for (final track in AudioTrack.values) {
@@ -203,7 +243,13 @@ class _MixerScreenState extends State<MixerScreen> {
   Future<void> _selectKey(String? key) async {
     if (key == null) return;
     try {
-      await _controller.selectKey(key);
+      final controller = _controller;
+      if (controller == null) {
+        setState(() => _selectedKey = key);
+        _showMessage('Key selected for the session. Audio is still starting.');
+        return;
+      }
+      await controller.selectKey(key);
       if (mounted) setState(() => _selectedKey = key);
     } on StateError {
       if (mounted) setState(() => _selectedKey = key);
