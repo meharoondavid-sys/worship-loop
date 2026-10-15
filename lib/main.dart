@@ -7,6 +7,29 @@ import 'audio_engine.dart';
 import 'custom_audio_library.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  ErrorWidget.builder = (details) => Material(
+        color: const Color(0xFF0A0D12),
+        child: SafeArea(
+          child: SizedBox.expand(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: SelectableText(
+                'Worship Loop could not render this screen.\\n\\n'
+                '${details.exceptionAsString()}',
+                style: const TextStyle(
+                  color: Color(0xFFFFD166),
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+  };
   runApp(const WorshipLoopApp());
 }
 
