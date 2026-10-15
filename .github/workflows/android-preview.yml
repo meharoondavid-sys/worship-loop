@@ -2,6 +2,13 @@ name: Android preview build
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'test/**'
+      - '.github/workflows/android-preview.yml'
   push:
     branches: [main]
     paths:
