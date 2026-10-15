@@ -182,7 +182,7 @@ class _MixerScreenState extends State<MixerScreen> {
     try {
       await _controller.selectKey(key);
       if (mounted) setState(() => _selectedKey = key);
-    } on StateError catch (error) {
+    } on StateError {
       if (mounted) setState(() => _selectedKey = key);
       _showMessage(
         'Key selected for the session. Load prepared pad audio for $key to '
