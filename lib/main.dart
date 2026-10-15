@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -58,6 +60,7 @@ class AudioLayer {
   final String subtitle;
   double volume;
   bool isPlaying = false;
+  String? customAudioPath;
 }
 
 class MixerScreen extends StatefulWidget {
@@ -111,12 +114,29 @@ class _MixerScreenState extends State<MixerScreen> {
     setState(() => _audioLoading = true);
     try {
       final directory = await getApplicationDocumentsDirectory();
+      final assignmentsFile = File('${directory.path}/audio_assignments.json');
+      Map<String, dynamic> assignments = {};
+      if (await assignmentsFile.exists()) {
+        try {
+          assignments = jsonDecode(await assignmentsFile.readAsString()) as Map<String, dynamic>;
+        } catch (_) {
+          assignments = {};
+        }
+      }
       for (var i = 0; i < _layers.length; i++) {
         final layer = _layers[i];
+        final savedPath = assignments[layer.name] as String?;
+        final savedFile = savedPath == null ? null : File(savedPath);
+        final customFileExists = savedFile != null && await savedFile.exists();
         final file = File('${directory.path}/worship_loop_${i + 1}.wav');
-        await file.writeAsBytes(_createLayerWav(i), flush: true);
+        if (customFileExists) {
+          layer.customAudioPath = savedFile.path;
+        } else {
+          layer.customAudioPath = null;
+          await file.writeAsBytes(_createLayerWav(i), flush: true);
+        }
         final player = _players[layer.name]!;
-        await player.setFilePath(file.path);
+        await player.setFilePath(customFileExists ? savedFile.path : file.path);
         await player.setLoopMode(LoopMode.one);
         await player.setVolume(_effectiveVolume(layer));
       }
@@ -132,6 +152,50 @@ class _MixerScreenState extends State<MixerScreen> {
         _audioLoading = false;
         _audioError = 'Audio setup failed: $error';
       });
+    }
+  }
+
+  Future<void> _importAudio(AudioLayer layer) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['wav', 'mp3', 'm4a', 'aac', 'ogg', 'flac'],
+        allowMultiple: false,
+      );
+      if (result == null || result.files.single.path == null) return;
+      final source = File(result.files.single.path!);
+      final directory = await getApplicationDocumentsDirectory();
+      final customDirectory = Directory('${directory.path}/custom_audio');
+      await customDirectory.create(recursive: true);
+      final safeName = result.files.single.name.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
+      final destination = File('${customDirectory.path}/${DateTime.now().millisecondsSinceEpoch}_$safeName');
+      await source.copy(destination.path);
+
+      final player = _players[layer.name]!;
+      await player.stop();
+      await player.setFilePath(destination.path);
+      await player.setLoopMode(LoopMode.one);
+      await player.setVolume(_effectiveVolume(layer));
+
+      layer.customAudioPath = destination.path;
+      layer.isPlaying = false;
+      final assignmentsFile = File('${directory.path}/audio_assignments.json');
+      Map<String, dynamic> assignments = {};
+      if (await assignmentsFile.exists()) {
+        try {
+          assignments = jsonDecode(await assignmentsFile.readAsString()) as Map<String, dynamic>;
+        } catch (_) {
+          assignments = {};
+        }
+      }
+      assignments[layer.name] = destination.path;
+      await assignmentsFile.writeAsString(jsonEncode(assignments), flush: true);
+      if (mounted) {
+        setState(() {});
+        _showNotice('Custom audio assigned to ${layer.name}. It will loop and use this channel’s fader.');
+      }
+    } catch (error) {
+      if (mounted) _showNotice('Could not import audio: $error');
     }
   }
 
@@ -526,7 +590,24 @@ class _MixerScreenState extends State<MixerScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
+          SizedBox(
+            height: 18,
+            width: 28,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Import audio for ${layer.name}',
+              onPressed: () => _importAudio(layer),
+              icon: Icon(layer.customAudioPath == null ? Icons.file_upload_outlined : Icons.audio_file_rounded, size: 13),
+              style: IconButton.styleFrom(
+                foregroundColor: accent,
+                backgroundColor: const Color(0xFF303539),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
           SizedBox(
             height: 20,
             width: 28,
@@ -1082,6 +1163,12 @@ class _MixerScreenState extends State<MixerScreen> {
                       Text(layer.subtitle, style: const TextStyle(color: Color(0xFF93A2B7), fontSize: 11)),
                     ],
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Import audio for ${layer.name}',
+                  onPressed: () => _importAudio(layer),
+                  icon: Icon(layer.customAudioPath == null ? Icons.file_upload_outlined : Icons.audio_file_rounded),
+                  color: accent,
                 ),
                 IconButton.filledTonal(
                   tooltip: layer.isPlaying ? 'Stop preview state' : 'Start preview state',
