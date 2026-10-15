@@ -370,7 +370,7 @@ class _MixerScreenState extends State<MixerScreen> {
 
     if (wide) {
       return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: keySelector),
           const SizedBox(width: 14),
