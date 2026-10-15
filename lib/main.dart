@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'audio_controller.dart';
 import 'audio_engine.dart';
+import 'custom_audio_library.dart';
 
 void main() {
   runApp(const WorshipLoopApp());
@@ -72,6 +73,7 @@ class MixerScreen extends StatefulWidget {
 class _MixerScreenState extends State<MixerScreen> {
   late final AudioEngine _engine;
   late final AudioController _controller;
+  final CustomAudioLibrary _audioLibrary = CustomAudioLibrary();
 
   static const _amber = Color(0xFFFFBF47);
   static const _blue = Color(0xFF65A9FF);
@@ -100,6 +102,7 @@ class _MixerScreenState extends State<MixerScreen> {
       _engine,
       sourcePercussionBpm: 100,
     );
+    unawaited(_restoreCustomAudio());
   }
 
   @override
@@ -107,6 +110,28 @@ class _MixerScreenState extends State<MixerScreen> {
     unawaited(_controller.dispose());
     unawaited(_engine.dispose());
     super.dispose();
+  }
+
+  Future<void> _restoreCustomAudio() async {
+    try {
+      await _audioLibrary.restore(_engine);
+      if (mounted) setState(() {});
+    } catch (error) {
+      _showMessage('Some saved audio could not be restored: $error');
+    }
+  }
+
+  Future<void> _importAudio(AudioTrack track) async {
+    try {
+      final path = await _audioLibrary.importForTrack(_engine, track);
+      if (path == null) return;
+      if (mounted) {
+        setState(() => _playing[track] = false);
+        _showMessage('Loaded ${_audioLibrary.nameFor(track)} into ${_trackName(track)}');
+      }
+    } catch (error) {
+      _showMessage('Audio import failed: $error');
+    }
   }
 
   Future<void> _toggleTrack(AudioTrack track) async {
@@ -556,6 +581,44 @@ class _MixerScreenState extends State<MixerScreen> {
                         style: const TextStyle(fontSize: 12, letterSpacing: 0.8)),
                   ],
                 ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _audioLibrary.nameFor(track) ?? 'No custom audio',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF9CAEC4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Semantics(
+            button: true,
+            label: 'Import audio for $label',
+            hint: 'Choose a WAV or MP3 file from this device',
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: OutlinedButton.icon(
+                onPressed: () => _importAudio(track),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: activeColor,
+                  side: BorderSide(color: activeColor.withValues(alpha: 0.55)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.audio_file_rounded, size: 19),
+                label: const Text('IMPORT AUDIO'),
               ),
             ),
           ),
