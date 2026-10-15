@@ -489,27 +489,78 @@ class _MixerScreenState extends State<MixerScreen> {
   }
 
   Widget _verticalLayerFader(AudioLayer layer, Color accent) {
+    final isPad = layer.kind == LayerKind.pad;
+    final shortName = layer.name.replaceFirst('Percussion ', 'Perc ');
     return Container(
-      decoration: BoxDecoration(color: const Color(0xFF111A27), border: Border.all(color: accent.withValues(alpha: .4)), borderRadius: BorderRadius.circular(7)),
-      padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFF383D42),
+        border: Border.all(color: accent.withValues(alpha: .62)),
+        borderRadius: BorderRadius.circular(9),
+      ),
+      padding: const EdgeInsets.fromLTRB(4, 5, 4, 5),
       child: Column(
         children: [
-          Text(layer.name.replaceFirst('Percussion ', 'Perc '), textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, height: 1, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 2),
-          Container(width: 18, height: 18, decoration: BoxDecoration(color: accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(5)), child: Icon(layer.kind == LayerKind.pad ? Icons.graphic_eq_rounded : Icons.waves_rounded, size: 11, color: accent)),
-          const SizedBox(height: 2),
-          SizedBox(height: 16, width: 26, child: IconButton(
-            padding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
-            onPressed: () => _toggleLayer(layer),
-            icon: Icon(layer.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded, size: 17),
-            style: IconButton.styleFrom(backgroundColor: layer.isPlaying ? accent : const Color(0xFF26364A), foregroundColor: layer.isPlaying ? const Color(0xFF07111D) : accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-          )),
-          Expanded(child: RotatedBox(quarterTurns: 3, child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(trackHeight: 3, thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5), activeTrackColor: accent, inactiveTrackColor: accent.withValues(alpha: .22), thumbColor: accent, overlayShape: SliderComponentShape.noOverlay),
-            child: Slider(value: layer.volume, onChanged: (v) => _updateLayerVolume(layer, v)),
-          ))),
-          Text('${(layer.volume * 100).round()}%', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: accent)),
+          Row(
+            children: [
+              Container(
+                width: 19,
+                height: 19,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF303539),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Icon(isPad ? Icons.graphic_eq_rounded : Icons.waves_rounded,
+                    size: 12, color: accent),
+              ),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(shortName, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 8, height: 1.05, fontWeight: FontWeight.w900)),
+                    Text(layer.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 6, height: 1.1, color: Color(0xFFB4BBC2))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            height: 20,
+            width: 28,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              tooltip: layer.isPlaying ? 'Stop ${layer.name}' : 'Play ${layer.name}',
+              onPressed: () => _toggleLayer(layer),
+              icon: Icon(layer.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded, size: 18),
+              style: IconButton.styleFrom(
+                backgroundColor: layer.isPlaying ? accent : const Color(0xFF303539),
+                foregroundColor: layer.isPlaying ? const Color(0xFF252A2E) : const Color(0xFFE1E5E8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+            ),
+          ),
+          Expanded(
+            child: RotatedBox(
+              quarterTurns: 3,
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 4,
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+                  activeTrackColor: accent,
+                  inactiveTrackColor: const Color(0xFF929AA1),
+                  thumbColor: const Color(0xFFCBD0D4),
+                  overlayShape: SliderComponentShape.noOverlay,
+                ),
+                child: Slider(value: layer.volume, onChanged: (v) => _updateLayerVolume(layer, v)),
+              ),
+            ),
+          ),
+          Text('${(layer.volume * 100).round()}%',
+              style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Color(0xFFEDF0F2))),
         ],
       ),
     );
